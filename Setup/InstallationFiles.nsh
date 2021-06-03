@@ -20,9 +20,19 @@ Var RobloxPath
     ${if} $RobloxPath == ""
         call RobloxNotFoundError
     ${EndIf}
-
     WriteRegStr HKCU "${SELFREGLOC}" "RobloxPath" $RobloxPath
     !insertmacro RegPrint "RobloxPath" $RobloxPath
+
+    WriteRegStr HKCU "${SELFREGLOC}" "DisplayName" "${NAME} - ${MANUFACTURER}"
+    WriteRegStr HKCU "${SELFREGLOC}" "UninstallString" "$INSTDIR\${UninstallerExe}"
+    WriteRegStr HKCU "${SELFREGLOC}" "DisplayIcon" "$INSTDIR\AppIcon.ico"
+    WriteRegStr HKCU "${SELFREGLOC}" "Publisher" "${MANUFACTURER}"
+    WriteRegStr HKCU "${SELFREGLOC}" "HelpLink" "${HELPLINK}"
+    WriteRegStr HKCU "${SELFREGLOC}" "URLInfoAbout" "${ABOUTLINK}"
+    WriteRegStr HKCU "${SELFREGLOC}" "URLUpdateInfo" "${UPDATELINK}"
+    WriteRegStr HKCU "${SELFREGLOC}" "DisplayVersion" "${VERSION}"
+    WriteRegDWORD HKCU "${SELFREGLOC}" "NoModify" 1
+    WriteRegDWORD HKCU "${SELFREGLOC}" "NoRepair" 1
 !macroend
 
 !macro PresetFiles SourcePath OutPath
@@ -61,11 +71,15 @@ Var RobloxPath
 
             SetOutPath $INSTDIR
 
-            !insertmacro WriteRegKeys
-
+            File "Graphics\AppIcon.ico"
             WriteUninstaller "${UninstallerExe}"
 
-            CreateDirectory "$PICTURES\Roshade"
+            CreateDirectory "$SMPROGRAMS\${NAME}"
+            CreateShortCut "$SMPROGRAMS\${NAME}\Uninstall ${NAME}.lnk" "$INSTDIR\${UninstallerExe}" "" "$INSTDIR\AppIcon.ico"
+
+            CreateDirectory "$PICTURES\${NAME}"
+
+            !insertmacro WriteRegKeys
         SectionEnd
         Section "Reshade" ReshadeSection
             SectionIn 1 RO

@@ -5,12 +5,7 @@ Unicode true
 !include ModernUI.nsh
 !include ErrorHandling.nsh
 !include InstallationFiles.nsh
-InstallDir "$PROGRAMFILES\Roshade"
-
-!define ROBLOXREGLOC "SOFTWARE\ROBLOX Corporation\Environments\roblox-player"
-!define ROBLOXUNINSTALLREGLOC "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\roblox-player"
-!define SELFREGLOC "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Roshade"
-!define UninstallerExe "Uninstall Roshade.exe"
+InstallDir "$LOCALAPPDATA\Roshade"
 
 !insertmacro RequiredFiles "..\Files\Reshade" $RobloxPath
 !insertmacro PresetFiles "..\Files\Preset" $RobloxPath
