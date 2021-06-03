@@ -1,2 +1,2 @@
 # Roshade
-An installation package made in NSIS for installing Reshade presets and shaders to Roblox.
+An installation package made for correctly installing Reshade presets and shaders to the Roblox directory.

@@ -1,0 +1,71 @@
+!include LogicLib.nsh
+!include MUI2.nsh
+
+Var hCtl_ReshadeSettings
+Var hCtl_ReshadeSettings_GroupBox2
+Var hCtl_ReshadeSettings_RB4
+Var hCtl_ReshadeSettings_RB3
+Var hCtl_ReshadeSettings_GroupBox1
+Var hCtl_ReshadeSettings_RB2
+Var hCtl_ReshadeSettings_RB1
+Var KeyOverlay
+Var KeyEffects
+
+Function fnc_ReshadeSettings_Create
+  nsDialogs::Create 1018
+  Pop $hCtl_ReshadeSettings
+  ${If} $hCtl_ReshadeSettings == error
+    Abort
+  ${EndIf}
+  !insertmacro MUI_HEADER_TEXT "Reshade Settings" "Please select your preferred settings for Reshade."
+
+  ${NSD_CreateGroupBox} 0u 49u 148u 46u "Select a key to toggle the shaders with:"
+  Pop $hCtl_ReshadeSettings_GroupBox2
+  ${NSD_AddExStyle} $hCtl_ReshadeSettings_GroupBox2 ${WS_EX_CONTROLPARENT}
+
+  ${NSD_CreateRadioButton} 7u 74u 132u 12u "End"
+  Pop $hCtl_ReshadeSettings_RB4
+  ${NSD_AddStyle} $hCtl_ReshadeSettings_RB4 ${WS_GROUP}
+  ${NSD_OnClick} $hCtl_ReshadeSettings_RB4 ToEnd
+
+  ${NSD_CreateRadioButton} 7u 62u 132u 12u "F8"
+  Pop $hCtl_ReshadeSettings_RB3
+  ${NSD_OnClick} $hCtl_ReshadeSettings_RB3 ToF8
+  ${NSD_Check} $hCtl_ReshadeSettings_RB3
+
+  ${NSD_CreateGroupBox} 0u 0u 148u 46u "Select a key to open/close Reshade with:"
+  Pop $hCtl_ReshadeSettings_GroupBox1
+
+  ${NSD_CreateRadioButton} 7u 25u 132u 12u "Home"
+  Pop $hCtl_ReshadeSettings_RB2
+  ${NSD_AddStyle} $hCtl_ReshadeSettings_RB2 ${WS_GROUP}
+  ${NSD_OnClick} $hCtl_ReshadeSettings_RB2 ToHome
+
+  ${NSD_CreateRadioButton} 7u 12u 132u 12u "F7"
+  Pop $hCtl_ReshadeSettings_RB1
+  ${NSD_OnClick} $hCtl_ReshadeSettings_RB1 ToF7
+  ${NSD_Check} $hCtl_ReshadeSettings_RB1
+FunctionEnd
+
+Function fnc_ReshadeSettings_Show
+  Call ToF8
+  Call ToF7
+  Call fnc_ReshadeSettings_Create
+  nsDialogs::Show
+FunctionEnd
+
+Function "ToF8"
+  StrCpy $KeyEffects "119,0,0,0"
+FunctionEnd
+
+Function "ToEnd"
+  StrCpy $KeyEffects "35,0,0,0"
+FunctionEnd
+
+Function "ToF7"
+  StrCpy $KeyOverlay "118,0,0,0"
+FunctionEnd
+
+Function "ToHome"
+  StrCpy $KeyOverlay "36,0,0,0"
+FunctionEnd

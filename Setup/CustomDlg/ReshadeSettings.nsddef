@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Dialog Name="ReshadeSettings" Title="Reshade Settings" Subtitle="Please select your preferred settings for Reshade.">
+  <GroupBox Name="GroupBox2" Location="0, 80" Size="225, 75" Text="Select a key to toggle the shaders with:" TabIndex="0" ExStyle="WS_EX_CONTROLPARENT">
+    <RadioButton Name="RB4" Location="10, 40" Size="200, 20" Text="End" TabIndex="0" />
+    <RadioButton Name="RB3" Location="10, 20" Size="200, 20" Text="F8" Checked="True" TabIndex="1" />
+  </GroupBox>
+  <GroupBox Name="GroupBox1" Location="0, 0" Size="225, 75" Text="Select a key to open/close Reshade with:" TabIndex="1">
+    <RadioButton Name="RB2" Location="10, 40" Size="200, 20" Text="Home" TabIndex="0" />
+    <RadioButton Name="RB1" Location="10, 20" Size="200, 20" Text="F7" Checked="True" TabIndex="1" />
+  </GroupBox>
+</Dialog>
