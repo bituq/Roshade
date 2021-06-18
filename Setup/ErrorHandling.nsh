@@ -13,6 +13,11 @@ Function RobloxNotFoundError
         Abort
 FunctionEnd
 
+Function RobloxInProgramFilesError
+    MessageBox MB_OK|MB_ICONSTOP "Roshade cannot be installed when Roblox is located in Program Files (x86). Please reinstall Roblox without admin permissions."
+        Abort
+FunctionEnd
+
 Function RobloxRunningError
     MessageBox MB_YESNOCANCEL|MB_ICONEXCLAMATION "It is recommended that you close Roblox when Reshade is already installed. Select 'yes' to close Roblox immediately." IDYES yes IDNO no
             Abort

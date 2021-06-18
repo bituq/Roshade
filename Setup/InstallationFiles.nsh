@@ -17,9 +17,8 @@ Var RobloxPath
     !insertmacro RegPrint "Version" "${VERSION}"
     
     ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
-    ${if} $RobloxPath == ""
-        call RobloxNotFoundError
-    ${EndIf}
+    StrCmp $RobloxPath "" 0 +2
+    call RobloxNotFoundError
     WriteRegStr HKCU "${SELFREGLOC}" "RobloxPath" $RobloxPath
     !insertmacro RegPrint "RobloxPath" $RobloxPath
 
@@ -37,28 +36,25 @@ Var RobloxPath
 
 !macro PresetFiles SourcePath OutPath
     SectionGroup /e Preset
-        Section "Ultra Quality" Ultra
-            SectionIn 1
-            SetOutPath "${OutPath}"
-            File "${SourcePath}\RoShade Ultra.ini"
-        SectionEnd
         Section "High Quality" High
             SectionIn 1
+            SetOutPath $RobloxPath
             File "${SourcePath}\RoShade High.ini"
         SectionEnd
         Section "Medium Quality" Medium
             SectionIn 1
+            SetOutPath $RobloxPath
             File "${SourcePath}\RoShade Medium.ini"
         SectionEnd
         Section "Low Quality" Low
             SectionIn 1
+            SetOutPath $RobloxPath
             File "${SourcePath}\RoShade Low.ini"
         SectionEnd
     SectionGroupEnd
 
     !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-        !insertmacro MUI_DESCRIPTION_TEXT ${Ultra} "GPU: NVIDIA RTX 3060 / AMD RX 6700 XT$\nCPU: AMD Ryzen 5 3600x / Intel Core i7 10700k"
-        !insertmacro MUI_DESCRIPTION_TEXT ${High} "GPU: NVIDIA RTX 2060 / AMD RX 5700 XT$\nCPU: AMD Ryzen 5 3600 / Intel Core i5 9600k"
+        !insertmacro MUI_DESCRIPTION_TEXT ${High} "GPU: NVIDIA RTX 2070 / AMD RX 5700 XT$\nCPU: AMD Ryzen 5 3600 / Intel Core i5 9600k"
         !insertmacro MUI_DESCRIPTION_TEXT ${Medium} "GPU: NVIDIA GTX 1050 Ti / AMD RX 570$\nCPU: AMD Ryzen 5 2600 / Intel Core i5 8600k"
         !insertmacro MUI_DESCRIPTION_TEXT ${Low} "GPU: NVIDIA GTX 970 / AMD 390$\nCPU: AMD Ryzen 5 1600 / Intel Core i7-4770k"
     !insertmacro MUI_FUNCTION_DESCRIPTION_END
@@ -85,6 +81,9 @@ Var RobloxPath
             SectionIn 1 RO
 
             SetOutPath "${OutPath}"
+
+            delete "$RobloxPath\opengl32.dll"
+            delete "$RobloxPath\d3d9.dll"
 
             File "${SourcePath}\dxgi.dll"
             File "${SourcePath}\Reshade.ini"
@@ -116,7 +115,9 @@ Var RobloxPath
             !insertmacro InstallToTemp "https://github.com/BlueSkyDefender/AstrayFX/archive/refs/heads/master.zip" "astrayfx-master.zip"
             !insertmacro InstallToTemp "https://github.com/JJXB/RS-Shaders/archive/refs/heads/master.zip" "rs-shaders-master.zip"
             !insertmacro InstallToTemp "https://github.com/luluco250/FXShaders/archive/refs/heads/master.zip" "FXShaders-master.zip"
+            !insertmacro InstallToTemp "https://github.com/Radegast-FFXIV/reshade-shaders/archive/refs/heads/master.zip" "Radegast-master.zip"
             
+            !insertmacro MoveShaderFiles "Radegast-master" $ShaderDir
             !insertmacro MoveShaderFiles "prod80-ReShade-Repository-master" $ShaderDir
             !insertmacro MoveShaderFiles "reshade-shaders-master" $ShaderDir
             !insertmacro MoveShaderFiles "quint-master" $ShaderDir

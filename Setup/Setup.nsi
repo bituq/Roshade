@@ -4,7 +4,10 @@ Unicode true
 !include LogicLib.nsh
 !include ModernUI.nsh
 !include ErrorHandling.nsh
+!include FileFunc.nsh
+!insertmacro Locate
 !include InstallationFiles.nsh
+!addplugindir "Plugins" 
 InstallDir "$LOCALAPPDATA\Roshade"
 
 !insertmacro RequiredFiles "..\Files\Reshade" $RobloxPath
@@ -21,7 +24,6 @@ Section "Uninstall"
     Delete "$RobloxDir\RoShade High.ini"
     Delete "$RobloxDir\RoShade Medium.ini"
     Delete "$RobloxDir\RoShade Low.ini"
-    Delete "$RobloxDir\RoShade Ultra.ini"
 
     Delete "$RobloxDir\dxgi.dll"
     Delete "$RobloxDir\Reshade.ini"
@@ -38,11 +40,15 @@ Function un.onInit
 FunctionEnd
 
 Function .onInit
-    ReadRegStr $0 HKCU "${ROBLOXREGLOC}" ""
-    ${ifnot} ${FileExists} $0
-        call RobloxNotFoundError
+    ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=RobloxPlayerBeta.exe" "RobloxInProgramFiles"
+    ${if} ${Errors}
+        ReadRegStr $0 HKCU "${ROBLOXREGLOC}" ""
+        ${ifnot} ${FileExists} $0
+            call RobloxNotFoundError
+        ${endif}
+    ${else}
+        call RobloxInProgramFilesError
     ${endif}
-
     ReadRegStr $0 HKCU "${SELFREGLOC}" "RobloxPath"
     nsProcess::_FindProcess "RobloxPlayerBeta.exe"
     pop $R0
@@ -52,4 +58,10 @@ Function .onInit
     ${endif}
 
     SectionSetSize ${ReshadeSection} 36860
+FunctionEnd
+
+Function "RobloxInProgramFiles"
+    StrCpy $RobloxPath $R8
+    StrCpy $0 StopLocate
+    Push $0
 FunctionEnd
