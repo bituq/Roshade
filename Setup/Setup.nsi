@@ -10,8 +10,12 @@ Unicode true
 !addplugindir "Plugins" 
 InstallDir "$LOCALAPPDATA\Roshade"
 
+!define PRESETFOLDER "$INSTDIR\presets"
+
 !insertmacro RequiredFiles "..\Files\Reshade" $RobloxPath
-!insertmacro PresetFiles "..\Files\Preset" $RobloxPath
+!insertmacro PresetFiles "..\Files\Preset" ${PRESETFOLDER}
+
+var LauncherPath
 
 Section "Uninstall"
     var /GLOBAL RobloxDir
@@ -40,13 +44,14 @@ Function un.onInit
 FunctionEnd
 
 Function .onInit
-    ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=RobloxPlayerBeta.exe" "RobloxInProgramFiles"
+    ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=RobloxPlayerLauncher.exe" "RobloxInProgramFiles"
     ${if} ${Errors}
         ReadRegStr $0 HKCU "${ROBLOXREGLOC}" ""
         ${ifnot} ${FileExists} $0
             call RobloxNotFoundError
         ${endif}
     ${else}
+        push $LauncherPath
         call RobloxInProgramFilesError
     ${endif}
     ReadRegStr $0 HKCU "${SELFREGLOC}" "RobloxPath"
@@ -62,6 +67,7 @@ FunctionEnd
 
 Function "RobloxInProgramFiles"
     StrCpy $RobloxPath $R8
+    StrCpy $LauncherPath $R9
     StrCpy $0 StopLocate
     Push $0
 FunctionEnd

@@ -35,21 +35,40 @@ Var RobloxPath
 !macroend
 
 !macro PresetFiles SourcePath OutPath
+    var FileName
     SectionGroup /e Preset
         Section "High Quality" High
+            StrCpy $FileName "RoShade High.ini"
+            StrCpy $2 "${OutPath}\$FileName"
+
             SectionIn 1
-            SetOutPath $RobloxPath
+            SetOutPath "${OutPath}"
             File "${SourcePath}\RoShade High.ini"
-        SectionEnd
-        Section "Medium Quality" Medium
-            SectionIn 1
-            SetOutPath $RobloxPath
-            File "${SourcePath}\RoShade Medium.ini"
+
+            WriteINIStr "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
+            !insertmacro IniPrint "GENERAL" "PresetPath" $2
         SectionEnd
         Section "Low Quality" Low
+            StrCpy $FileName "RoShade Low.ini"
+            StrCpy $2 "${OutPath}\$FileName"
+
             SectionIn 1
-            SetOutPath $RobloxPath
+            SetOutPath "${OutPath}"
             File "${SourcePath}\RoShade Low.ini"
+
+            WriteINIStr "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
+            !insertmacro IniPrint "GENERAL" "PresetPath" $2
+        SectionEnd
+        Section "Medium Quality" Medium
+            StrCpy $FileName "RoShade Medium.ini"
+            StrCpy $2 "${OutPath}\$FileName"
+
+            SectionIn 1
+            SetOutPath "${OutPath}"
+            File "${SourcePath}\RoShade Medium.ini"
+
+            WriteINIStr "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
+            !insertmacro IniPrint "GENERAL" "PresetPath" $2
         SectionEnd
     SectionGroupEnd
 
@@ -65,7 +84,11 @@ Var RobloxPath
         Section "Roshade"
             SectionIn 1 RO
 
+            CreateDirectory "${OutPath}\roshade"
+
             SetOutPath $INSTDIR
+
+            CreateDirectory "$INSTDIR\presets"
 
             File "Graphics\AppIcon.ico"
             WriteUninstaller "${UninstallerExe}"
@@ -85,10 +108,7 @@ Var RobloxPath
             delete "$RobloxPath\opengl32.dll"
             delete "$RobloxPath\d3d9.dll"
 
-            File "${SourcePath}\dxgi.dll"
-            File "${SourcePath}\Reshade.ini"
-            File "${SourcePath}\FiraCode-VariableFont_wght.ttf"
-            File "${SourcePath}\OpenSans-SemiBold.ttf"
+            File /r "${SourcePath}\*"
 
             WriteINIStr "${OutPath}\Reshade.ini" "INPUT" "KeyEffects" $KeyEffects
             !insertmacro IniPrint "INPUT" "KeyEffects" $KeyEffects
@@ -126,6 +146,10 @@ Var RobloxPath
             !insertmacro MoveShaderFiles "FXShaders-master" $ShaderDir
 
             RMDir /r $TempDir
+
+            SetOutPath "${OutPath}\roshade"
+
+            File /r "..\Files\Roshade\*"
         SectionEnd
     SectionGroupEnd
 !macroend

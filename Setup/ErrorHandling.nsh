@@ -1,4 +1,3 @@
-
 !include LogicLib.nsh
 
 !macro StopMessage Message
@@ -14,15 +13,24 @@ Function RobloxNotFoundError
 FunctionEnd
 
 Function RobloxInProgramFilesError
-    MessageBox MB_OK|MB_ICONSTOP "Roshade cannot be installed when Roblox is located in Program Files (x86). Please reinstall Roblox without admin permissions."
+    MessageBox MB_YESNO|MB_ICONQUESTION "Roshade cannot be installed when Roblox is located in Program Files (x86). Would you like to reinstall Roblox automatically?" IDYES yes
         Abort
+    yes:
+    MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Roblox will now be reinstalled." IDOK ok
+        Abort
+    ok:
+    StrCpy $2 "$TEMP\RobloxPlayerLauncher.exe"
+    pop $1
+    Rename $1 $2
+    RMDir /r "$PROGRAMFILES\Roblox"
+    ExecWait $2
 FunctionEnd
 
 Function RobloxRunningError
     MessageBox MB_YESNOCANCEL|MB_ICONEXCLAMATION "It is recommended that you close Roblox when Reshade is already installed. Select 'yes' to close Roblox immediately." IDYES yes IDNO no
             Abort
         yes:
-        MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "Roblox will now be closed..." IDCANCEL no
+        MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Roblox will now be closed." IDCANCEL no
             nsProcess::_KillProcess "RobloxPlayerBeta.exe"
             pop $R0
             ${switch} $R0
