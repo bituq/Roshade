@@ -1,4 +1,4 @@
-!define VERSION "1.2.1"
+!define VERSION "1.2.2"
 !define MANUFACTURER "Zeal"
 !define NAME "Roshade"
 !define ROBLOXREGLOC "SOFTWARE\ROBLOX Corporation\Environments\roblox-player"

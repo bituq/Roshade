@@ -21,13 +21,11 @@ Section "Uninstall"
     var /GLOBAL RobloxDir
     ReadRegStr $RobloxDir HKCU "${SELFREGLOC}" "RobloxPath"
 
-    RMDir /r $INSTDIR
+    Delete "$INSTDIR\AppIcon.ico"
+    Delete "$INSTDIR\Uninstall Roshade.exe"
+
     DeleteRegKey HKCU "${SELFREGLOC}"
     !insertmacro RegDelPrint ${SELFREGLOC}
-
-    Delete "$RobloxDir\RoShade High.ini"
-    Delete "$RobloxDir\RoShade Medium.ini"
-    Delete "$RobloxDir\RoShade Low.ini"
 
     Delete "$RobloxDir\dxgi.dll"
     Delete "$RobloxDir\Reshade.ini"
@@ -38,7 +36,7 @@ Section "Uninstall"
 SectionEnd
 
 Function un.onInit
-    MessageBox MB_YESNO|MB_ICONQUESTION "This will uninstall Reshade and the Roshade preset. Are you sure you want to continue?" IDYES continue
+    MessageBox MB_YESNO|MB_ICONQUESTION "This will uninstall Reshade from your Roblox directory. Are you sure you want to continue?" IDYES continue
         quit
     continue:
 FunctionEnd
