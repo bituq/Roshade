@@ -20,5 +20,5 @@ Some dependencies may be installed to the NSIS directory, or otherwise to the re
 - [NsProcess](https://nsis.sourceforge.io/mediawiki/index.php?title=NsProcess_plugin&oldid=24277)
 ##### Setup\Util folder:
 - [MoveFileFolder](https://nsis.sourceforge.io/MoveFileFolder)
-- [GetSectionNames]([https://](https://nsis.sourceforge.io/Get_all_section_names_of_INI_file))
+- [GetSectionNames](https://nsis.sourceforge.io/Get_all_section_names_of_INI_file)
 - [Explode](https://nsis.sourceforge.io/Explode)
