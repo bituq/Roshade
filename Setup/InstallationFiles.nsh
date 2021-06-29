@@ -1,38 +1,16 @@
+# Dependencies
 !include MUI2.nsh
 !include LogicLib.nsh
 !include FileFunc.nsh
 !include DetailPrints.nsh
+!include "Util\MoveFileFolder.nsh"
+!include "Util\GetSectionNames.nsh"
+!include "Util\Explode.nsh"
 !insertmacro Locate
-var switch_overwrite
-!include MoveFileFolder.nsh
 
-Var RobloxPath
-
-!macro WriteRegKeys
-    ReadRegStr $1 HKCU "${ROBLOXREGLOC}" "curPlayerVer"
-    WriteRegStr HKCU "${SELFREGLOC}" "RobloxVersion" $1
-    !insertmacro RegPrint "RobloxVersion" $1
-
-    WriteRegStr HKCU "${SELFREGLOC}" "Version" "${VERSION}"
-    !insertmacro RegPrint "Version" "${VERSION}"
-    
-    ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
-    StrCmp $RobloxPath "" 0 +2
-    call RobloxNotFoundError
-    WriteRegStr HKCU "${SELFREGLOC}" "RobloxPath" $RobloxPath
-    !insertmacro RegPrint "RobloxPath" $RobloxPath
-
-    WriteRegStr HKCU "${SELFREGLOC}" "DisplayName" "${NAME} - ${MANUFACTURER}"
-    WriteRegStr HKCU "${SELFREGLOC}" "UninstallString" "$INSTDIR\${UninstallerExe}"
-    WriteRegStr HKCU "${SELFREGLOC}" "DisplayIcon" "$INSTDIR\AppIcon.ico"
-    WriteRegStr HKCU "${SELFREGLOC}" "Publisher" "${MANUFACTURER}"
-    WriteRegStr HKCU "${SELFREGLOC}" "HelpLink" "${HELPLINK}"
-    WriteRegStr HKCU "${SELFREGLOC}" "URLInfoAbout" "${ABOUTLINK}"
-    WriteRegStr HKCU "${SELFREGLOC}" "URLUpdateInfo" "${UPDATELINK}"
-    WriteRegStr HKCU "${SELFREGLOC}" "DisplayVersion" "${VERSION}"
-    WriteRegDWORD HKCU "${SELFREGLOC}" "NoModify" 1
-    WriteRegDWORD HKCU "${SELFREGLOC}" "NoRepair" 1
-!macroend
+# Definitions
+var RobloxPath
+var ShaderDir
 
 !macro PresetFiles SourcePath OutPath
     var FileName
@@ -45,8 +23,7 @@ Var RobloxPath
             SetOutPath "${OutPath}"
             File "${SourcePath}\RoShade High.ini"
 
-            WriteINIStr "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
-            !insertmacro IniPrint "GENERAL" "PresetPath" $2
+            !insertmacro IniPrint "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
         SectionEnd
         Section "Low Quality" Low
             StrCpy $FileName "RoShade Low.ini"
@@ -56,8 +33,7 @@ Var RobloxPath
             SetOutPath "${OutPath}"
             File "${SourcePath}\RoShade Low.ini"
 
-            WriteINIStr "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
-            !insertmacro IniPrint "GENERAL" "PresetPath" $2
+            !insertmacro IniPrint "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
         SectionEnd
         Section "Medium Quality" Medium
             StrCpy $FileName "RoShade Medium.ini"
@@ -67,8 +43,7 @@ Var RobloxPath
             SetOutPath "${OutPath}"
             File "${SourcePath}\RoShade Medium.ini"
 
-            WriteINIStr "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
-            !insertmacro IniPrint "GENERAL" "PresetPath" $2
+            !insertmacro IniPrint "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
         SectionEnd
     SectionGroupEnd
 
@@ -87,9 +62,7 @@ Var RobloxPath
             CreateDirectory "${OutPath}\roshade"
 
             SetOutPath $INSTDIR
-
             CreateDirectory "$INSTDIR\presets"
-
             File "Graphics\AppIcon.ico"
             WriteUninstaller "${UninstallerExe}"
 
@@ -98,86 +71,88 @@ Var RobloxPath
 
             CreateDirectory "$PICTURES\${NAME}"
 
-            !insertmacro WriteRegKeys
+            ReadRegStr $1 HKCU "${ROBLOXREGLOC}" "curPlayerVer"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "RobloxVersion" $1
+            !insertmacro RegStrPrint "${SELFREGLOC}" "Version" "${VERSION}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "RobloxPath" $RobloxPath
+            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayName" '"${NAME} - ${MANUFACTURER}"'
+            !insertmacro RegStrPrint "${SELFREGLOC}" "UninstallString" '"$INSTDIR\${UninstallerExe}"'
+            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayIcon" '"$INSTDIR\$0"'
+            !insertmacro RegStrPrint "${SELFREGLOC}" "Publisher" "${MANUFACTURER}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "HelpLink" "${HELPLINK}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "URLInfoAbout" "${ABOUTLINK}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "URLUpdateInfo" "${UPDATELINK}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayVersion" "${VERSION}"
+            WriteRegDWORD HKCU "${SELFREGLOC}" "NoModify" 1
+            WriteRegDWORD HKCU "${SELFREGLOC}" "NoRepair" 1
         SectionEnd
         Section "Reshade" ReshadeSection
             SectionIn 1 RO
 
             SetOutPath "${OutPath}"
-
-            delete "$RobloxPath\opengl32.dll"
-            delete "$RobloxPath\d3d9.dll"
-
             File /r "${SourcePath}\*"
 
-            WriteINIStr "${OutPath}\Reshade.ini" "INPUT" "KeyEffects" $KeyEffects
-            !insertmacro IniPrint "INPUT" "KeyEffects" $KeyEffects
-            WriteINIStr "${OutPath}\Reshade.ini" "INPUT" "KeyOverlay" $KeyOverlay
-            !insertmacro IniPrint "INPUT" "KeyOverlay" $KeyOverlay
-            WriteINIStr "${OutPath}\Reshade.ini" "SCREENSHOT" "SavePath" "$PICTURES\Roshade"
-            !insertmacro IniPrint "SCREENSHOT" "SavePath" "$PICTURES\Roshade"
-
-            var /GLOBAL CancelQuestion
+            !insertmacro IniPrint "${OutPath}\Reshade.ini" "INPUT" "KeyEffects" $KeyEffects
+            !insertmacro IniPrint "${OutPath}\Reshade.ini" "INPUT" "KeyOverlay" $KeyOverlay
+            !insertmacro IniPrint "${OutPath}\Reshade.ini" "SCREENSHOT" "SavePath" "$PICTURES\Roshade"
 
             var /GLOBAL TempDir
             StrCpy $TempDir "$TEMP\Zeal"
             CreateDirectory $TempDir
 
-            var /GLOBAL ShaderDir
-            StrCpy $ShaderDir "${OutPath}\reshade-shaders"
+            StrCpy $ShaderDir "${OutPath}reshade-shaders"
             CreateDirectory $ShaderDir
 
-            StrCpy $switch_overwrite 0
+            SetOutPath $TEMP
+            File "Shaders.ini"
 
-            !insertmacro InstallToTemp "https://github.com/prod80/prod80-ReShade-Repository/archive/refs/heads/master.zip" "prod80-master.zip"
-            !insertmacro InstallToTemp "https://github.com/crosire/reshade-shaders/archive/refs/heads/master.zip" "reshade-shaders-master.zip"
-            !insertmacro InstallToTemp "https://github.com/martymcmodding/qUINT/archive/refs/heads/master.zip" "quint-master.zip"
-            !insertmacro InstallToTemp "https://github.com/BlueSkyDefender/AstrayFX/archive/refs/heads/master.zip" "astrayfx-master.zip"
-            !insertmacro InstallToTemp "https://github.com/JJXB/RS-Shaders/archive/refs/heads/master.zip" "rs-shaders-master.zip"
-            !insertmacro InstallToTemp "https://github.com/luluco250/FXShaders/archive/refs/heads/master.zip" "FXShaders-master.zip"
-            !insertmacro InstallToTemp "https://github.com/Radegast-FFXIV/reshade-shaders/archive/refs/heads/master.zip" "Radegast-master.zip"
-            
-            !insertmacro MoveShaderFiles "Radegast-master" $ShaderDir
-            !insertmacro MoveShaderFiles "prod80-ReShade-Repository-master" $ShaderDir
-            !insertmacro MoveShaderFiles "reshade-shaders-master" $ShaderDir
-            !insertmacro MoveShaderFiles "quint-master" $ShaderDir
-            !insertmacro MoveShaderFiles "astrayfx-master" $ShaderDir
-            !insertmacro MoveShaderFiles "rs-shaders-master" $ShaderDir
-            !insertmacro MoveShaderFiles "FXShaders-master" $ShaderDir
+            ${GetSectionNames} "$TEMP\Shaders.ini" InstallShaders
 
             RMDir /r $TempDir
 
             SetOutPath "${OutPath}\roshade"
-
             File /r "..\Files\Roshade\*"
+
+            delete "$RobloxPath\opengl32.dll"
+            delete "$RobloxPath\d3d9.dll"
         SectionEnd
     SectionGroupEnd
 !macroend
 
 !macro MoveShaderFiles SourceName Destination
-    !insertmacro MoveFolder "$TempDir\${SourceName}\Shaders\" "${Destination}\Shaders" "*.fx"
-    !insertmacro MoveFolder "$TempDir\${SourceName}\Shaders\" "${Destination}\Shaders" "*.fxh"
-    !insertmacro MoveFolder "$TempDir\${SourceName}\Textures\" "${Destination}\Textures" "*"
+    !insertmacro MoveFolder "$TempDir\${SourceName}\Shaders" "${Destination}\Shaders" "*.fx"
+    !insertmacro MoveFolder "$TempDir\${SourceName}\Shaders" "${Destination}\Shaders" "*.fxh"
+    !insertmacro MoveFolder "$TempDir\${SourceName}\Textures" "${Destination}\Textures" "*"
 !macroend
 
 !macro InstallToTemp SourcePath ZipName
-    !define ID ${__LINE__}
+    !define ID $3
     SetOutPath $TEMP
 
+    StrCpy $R3 "Cancel installing ${ZipName}? This is not recommended."
+
     start_${ID}:
-    StrCpy $CancelQuestion "Cancel installing ${ZipName}? This is not recommended."
-
-    inetc::get /QUESTION $CancelQuestion ${SourcePath} ${ZipName}
-
+    inetc::get /QUESTION $R3 ${SourcePath} ${ZipName}
     nsisunz::UnzipToLog ${ZipName} $TempDir
-
     Delete ${ZipName}
 
-    Pop $0
-    StrCmp $0 "success" end_${ID}
-        DetailPrint $0
-        MessageBox MB_ABORTRETRYIGNORE|MB_ICONEXCLAMATION "$0: ${ZipName}" IDIGNORE end_${ID} IDRETRY start_${ID}
-            Abort
+    Pop $R0
+    StrCmp $R0 "success" end_${ID}
+    StrCpy $R2 "R0: ${ZipName}"
+    DetailPrint $R2
+    MessageBox MB_ABORTRETRYIGNORE|MB_ICONEXCLAMATION $R2 IDIGNORE end_${ID} IDRETRY start_${ID}
+        Abort
     end_${ID}:
     !undef ID
 !macroend
+
+Function InstallShaders
+    ReadINIStr $R1 $0 $9 "repo"
+    StrCmp $R1 "" skip 0
+    !insertmacro InstallToTemp "https://github.com/$R1/archive/refs/heads/master.zip" "$9.zip"
+    ${Explode} $R1 "/" $R1
+    Pop $R1
+    Pop $R1
+    !insertmacro MoveShaderFiles "$R1-master" $ShaderDir
+    skip:
+FunctionEnd
