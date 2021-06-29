@@ -1,38 +1,26 @@
 Unicode true
 
-!include Attributes.nsh
-!include LogicLib.nsh
-!include ModernUI.nsh
-!include ErrorHandling.nsh
-!include FileFunc.nsh
-!insertmacro Locate
-!include InstallationFiles.nsh
-!addplugindir "Plugins" 
+# Definitions
 InstallDir "$LOCALAPPDATA\Roshade"
 
-!define PRESETFOLDER "$INSTDIR\presets"
+# Dependencies
+!include Attributes.nsh
+!include ModernUI.nsh
+!include ErrorHandling.nsh
+!include InstallationFiles.nsh
+!insertmacro Locate 
 
-!insertmacro RequiredFiles "..\Files\Reshade" $RobloxPath
-!insertmacro PresetFiles "..\Files\Preset" ${PRESETFOLDER}
-
-var LauncherPath
-
-Section "Uninstall"
-    var /GLOBAL RobloxDir
-    ReadRegStr $RobloxDir HKCU "${SELFREGLOC}" "RobloxPath"
-
+# Uninstallation
+Section Uninstall
+    ReadRegStr $0 HKCU "${SELFREGLOC}" "RobloxPath"
+    DeleteRegKey HKCU "${SELFREGLOC}"
     Delete "$INSTDIR\AppIcon.ico"
     Delete "$INSTDIR\Uninstall Roshade.exe"
-
-    DeleteRegKey HKCU "${SELFREGLOC}"
-    !insertmacro RegDelPrint ${SELFREGLOC}
-
-    Delete "$RobloxDir\dxgi.dll"
-    Delete "$RobloxDir\Reshade.ini"
-    Delete "$RobloxDir\FiraCode-VariableFont_wght.ttf"
-    Delete "$RobloxDir\OpenSans-SemiBold.ttf"
-
-    RMDir /r "$RobloxDir\reshade-shaders"
+    Delete "$0\dxgi.dll"
+    Delete "$0\Reshade.ini"
+    Delete "$0\FiraCode-VariableFont_wght.ttf"
+    Delete "$0\OpenSans-SemiBold.ttf"
+    RMDir /r "$0\reshade-shaders"
 SectionEnd
 
 Function un.onInit
@@ -41,31 +29,30 @@ Function un.onInit
     continue:
 FunctionEnd
 
+# Installation
+!insertmacro RequiredFiles ${RESHADESOURCE} $RobloxPath
+!insertmacro PresetFiles ${PRESETSOURCE} ${PRESETFOLDER}
+
 Function .onInit
-    ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=RobloxPlayerLauncher.exe" "RobloxInProgramFiles"
-    ${if} ${Errors}
-        ReadRegStr $0 HKCU "${ROBLOXREGLOC}" ""
-        ${ifnot} ${FileExists} $0
-            call RobloxNotFoundError
-        ${endif}
-    ${else}
-        push $LauncherPath
-        call RobloxInProgramFilesError
-    ${endif}
-    ReadRegStr $0 HKCU "${SELFREGLOC}" "RobloxPath"
+    StrCpy $1 "RobloxPlayerLauncher.exe"
+    ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=$1" "RobloxInProgramFiles"
+
+    ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
+    ${IfNot} ${FileExists} "$RobloxPath\$1"
+        call RobloxNotFoundError
+    ${EndIf}
+
     nsProcess::_FindProcess "RobloxPlayerBeta.exe"
     pop $R0
-    ${if} $R0 == 0
-    ${andifnot} $0 == ""
-        Call RobloxRunningError
-    ${endif}
+    StrCmp $R0 0 0 +2
+    Call RobloxRunningError
 
     SectionSetSize ${ReshadeSection} 36860
 FunctionEnd
 
-Function "RobloxInProgramFiles"
-    StrCpy $RobloxPath $R8
-    StrCpy $LauncherPath $R9
+Function RobloxInProgramFiles
     StrCpy $0 StopLocate
-    Push $0
+    push $0
+    push $R9
+    call RobloxInProgramFilesError
 FunctionEnd
