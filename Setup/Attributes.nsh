@@ -8,12 +8,20 @@
 !define HELPLINK "https://discord.gg/sjSDVrCjFG"
 !define ABOUTLINK "https://Roshade.com/"
 !define UPDATELINK "https://github.com/bituq/Roshade/releases"
+!define PRESETFOLDER "$INSTDIR\presets"
+!define RESHADESOURCE "..\Files\Reshade"
+!define PRESETSOURCE "..\Files\Preset"
 
+VIProductVersion "${VERSION}.0"
+VIAddVersionKey "ProductName" "${NAME}"
+VIAddVersionKey "CompanyName" "${MANUFACTURER}"
+VIAddVersionKey "LegalCopyright" "Copyright (C) 2021 Zeal"
+VIAddVersionKey "ProductVersion" "${VERSION}"
+VIAddVersionKey "FileVersion" "${VERSION}"
 
 Name "${NAME}"
 Caption "$(^Name) Installation"
-; Outfile "..\Roshade ${VERSION} setup.exe"
 Outfile "..\RoshadeSetup.exe"
-BrandingText ${MANUFACTURER}
+BrandingText "${MANUFACTURER}"
 CRCCHECK force
 RequestExecutionLevel user
