@@ -7,11 +7,18 @@ An installation package made for correctly installing Reshade presets and shader
 - Selecting essential reshade keybinds during installation.
 - Previously unknown errors are now resolved through dialog messages.
 - Description of system requirements for each component.
+- Automatically installs the required shaders from github.
 
 ## Building the source
-The installer uses [NSIS](https://nsis.sourceforge.io/Download "Download NSIS"), so make sure you have that installed first.
-### Libraries:
-1. [INetC](https://github.com/DigitalMediaServer/NSIS-INetC-plugin)
-2. [MoveFileFolder](https://nsis.sourceforge.io/MoveFileFolder)
-3. [Nsisunz](https://github.com/past-due/nsisunz)
-4. [NsProcess](https://nsis.sourceforge.io/mediawiki/index.php?title=NsProcess_plugin&oldid=24277)
+The installer is written in [NSIS](https://nsis.sourceforge.io/Download "Download NSIS"), so make sure you have that installed first. I highly recommend reading through the NSIS [reference](https://nsis.sourceforge.io/Docs/Contents.html) before proceeding.
+### Libraries
+
+Some dependencies may be installed to the NSIS directory, or otherwise to the repository's *Setup\Util* folder. For more information on installing plugins to the NSIS directory, click [here](https://nsis.sourceforge.io/How_can_I_install_a_plugin).
+##### NSIS Directory:
+- [INetC](https://github.com/DigitalMediaServer/NSIS-INetC-plugin)
+- [Nsisunz](https://github.com/past-due/nsisunz)
+- [NsProcess](https://nsis.sourceforge.io/mediawiki/index.php?title=NsProcess_plugin&oldid=24277)
+##### Setup\Util folder:
+- [MoveFileFolder](https://nsis.sourceforge.io/MoveFileFolder)
+- [GetSectionNames]([https://](https://nsis.sourceforge.io/Get_all_section_names_of_INI_file))
+- [Explode](https://nsis.sourceforge.io/Explode)
