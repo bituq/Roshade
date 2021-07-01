@@ -24,6 +24,7 @@ Function RobloxInProgramFilesError
     Rename $1 $2
     RMDir /r "$PROGRAMFILES\Roblox"
     ExecWait $2
+    delete $2
 FunctionEnd
 
 Function RobloxRunningError
