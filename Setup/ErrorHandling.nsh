@@ -1,15 +1,15 @@
 !include LogicLib.nsh
 
+var LauncherTransferID
+
 !macro StopMessage Message
     MessageBox MB_OK|MB_ICONSTOP "${Message}"
     quit
 !macroend
 
 Function RobloxNotFoundError
-    MessageBox MB_OK|MB_ICONSTOP "Roblox has not been found on your PC. Would you like to install Roblox?" IDNO NoInstall
-        ExecShell open "https://www.roblox.com/download"
-    NoInstall:
-        Abort
+    NScurl::http GET "https://www.roblox.com/download/client" "$PLUGINSDIR/RobloxPlayerLauncher.exe" /BACKGROUND /END
+    pop $LauncherTransferID
 FunctionEnd
 
 Function RobloxInProgramFilesError

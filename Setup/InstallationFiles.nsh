@@ -96,63 +96,72 @@ var ShaderDir
             !insertmacro IniPrint "${OutPath}\Reshade.ini" "INPUT" "KeyOverlay" $KeyOverlay
             !insertmacro IniPrint "${OutPath}\Reshade.ini" "SCREENSHOT" "SavePath" "$PICTURES\Roshade"
 
-            var /GLOBAL TempDir
-            StrCpy $TempDir "$TEMP\Zeal"
-            CreateDirectory $TempDir
+            CreateDirectory "$TEMP\Zeal"
 
             StrCpy $ShaderDir "${OutPath}reshade-shaders"
             CreateDirectory $ShaderDir
 
             SetOutPath $TEMP
-            File "Shaders.ini"
 
-            ${GetSectionNames} "$TEMP\Shaders.ini" InstallShaders
+            ${GetSectionNames} "$PLUGINSDIR\Shaders.ini" InstallShadersAsync
+            StrCmp $LauncherTransferID "" +3
+            NScurl::wait /ID $LauncherTransferID /END
+            ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
+            NScurl::wait /TAG "Shader" /END
+            FindFirst $0 $1 "$TEMP\Zeal\*.zip"
+            loop:
+                StrCmp $1 "" done
+                !insertmacro Unzip $1
+                FindNext $0 $1
+                GoTo loop
+            done:
+            FindClose $0
 
-            RMDir /r $TempDir
+            RMDir /r "$TEMP\Zeal"
 
             SetOutPath "${OutPath}\roshade"
             File /r "..\Files\Roshade\*"
 
             delete "$RobloxPath\opengl32.dll"
             delete "$RobloxPath\d3d9.dll"
+
+
         SectionEnd
     SectionGroupEnd
 !macroend
 
 !macro MoveShaderFiles SourceName Destination
-    !insertmacro MoveFolder "$TempDir\${SourceName}\Shaders" "${Destination}\Shaders" "*.fx"
-    !insertmacro MoveFolder "$TempDir\${SourceName}\Shaders" "${Destination}\Shaders" "*.fxh"
-    !insertmacro MoveFolder "$TempDir\${SourceName}\Textures" "${Destination}\Textures" "*"
+    !insertmacro MoveFolder "$TEMP\Zeal\${SourceName}\Shaders" "${Destination}\Shaders" "*.fx"
+    !insertmacro MoveFolder "$TEMP\Zeal\${SourceName}\Shaders" "${Destination}\Shaders" "*.fxh"
+    !insertmacro MoveFolder "$TEMP\Zeal\${SourceName}\Textures" "${Destination}\Textures" "*"
 !macroend
 
 !macro InstallToTemp SourcePath ZipName
-    !define ID $3
     SetOutPath $TEMP
+!macroend
 
-    StrCpy $R3 "Cancel installing ${ZipName}? This is not recommended."
-
+!macro Unzip ZipName
+    !define ID {__LINE__}
     start_${ID}:
-    inetc::get /QUESTION $R3 ${SourcePath} ${ZipName}
-    nsisunz::UnzipToLog ${ZipName} $TempDir
-    Delete ${ZipName}
-
+    nsisunz::UnzipToStack "$TEMP\Zeal\${ZipName}" "$TEMP\Zeal"
     Pop $R0
-    StrCmp $R0 "success" end_${ID}
-    StrCpy $R2 "R0: ${ZipName}"
+    StrCmp $R0 "success" +5
+    StrCpy $R2 "$R0: ${ZipName}"
     DetailPrint $R2
     MessageBox MB_ABORTRETRYIGNORE|MB_ICONEXCLAMATION $R2 IDIGNORE end_${ID} IDRETRY start_${ID}
         Abort
+
+    Pop $R1
+    ${Explode} $R1 "\" $R1
+    pop $R1
+    !insertmacro MoveShaderFiles $R1 $ShaderDir
     end_${ID}:
+    Delete "$TEMP\Zeal\${ZipName}"
     !undef ID
 !macroend
 
-Function InstallShaders
+Function InstallShadersAsync
     ReadINIStr $R1 $0 $9 "repo"
-    StrCmp $R1 "" skip 0
-    !insertmacro InstallToTemp "https://github.com/$R1/archive/refs/heads/master.zip" "$9.zip"
-    ${Explode} $R1 "/" $R1
-    Pop $R1
-    Pop $R1
-    !insertmacro MoveShaderFiles "$R1-master" $ShaderDir
-    skip:
+    StrCmp $R1 "" +2 0
+    NScurl::http GET "https://github.com/$R1/archive/refs/heads/master.zip" "$TEMP/Zeal/$9.zip" /BACKGROUND /TAG "Shader" /END
 FunctionEnd

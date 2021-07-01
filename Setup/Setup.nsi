@@ -34,6 +34,13 @@ FunctionEnd
 !insertmacro PresetFiles ${PRESETSOURCE} ${PRESETFOLDER}
 
 Function .onInit
+    InitPluginsDir
+    SetOutPath $PLUGINSDIR
+    File "Graphics\Roshade.gif"
+    File "Shaders.ini"
+
+    newadvsplash::show /NOUNLOAD 1000 300 0 -2 /PASSIVE /NOCANCEL "$PLUGINSDIR\Roshade.gif"
+
     StrCpy $1 "RobloxPlayerLauncher.exe"
     ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=$1" "RobloxInProgramFiles"
 
@@ -46,8 +53,8 @@ Function .onInit
     pop $R0
     StrCmp $R0 0 0 +2
     Call RobloxRunningError
-
     SectionSetSize ${ReshadeSection} 36860
+    newadvsplash::stop /WAIT
 FunctionEnd
 
 Function RobloxInProgramFiles
