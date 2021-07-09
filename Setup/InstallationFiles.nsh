@@ -3,47 +3,35 @@
 !include LogicLib.nsh
 !include FileFunc.nsh
 !include DetailPrints.nsh
-!include "Util\MoveFileFolder.nsh"
 !include "Util\GetSectionNames.nsh"
 !include "Util\Explode.nsh"
+!include "Util\ConfigRead.nsh"
+!include "Util\StrContains.nsh"
 !insertmacro Locate
 
-# Definitions
-var RobloxPath
-var ShaderDir
+!macro AddPreset SourcePath OutPath FileName
+    StrCpy $2 "${PRESETFOLDER}\${FileName}"
+
+    SectionIn 1
+    SetOutPath "${OutPath}"
+    File "${SourcePath}\${FileName}"
+
+    ${ConfigRead} "${OutPath}\${FileName}" "techniques=" $0
+    StrCpy $Techniques "$Techniques$0,"
+
+    !insertmacro IniPrint "$PLUGINSDIR\Reshade.ini" "GENERAL" "PresetPath" $2
+!macroend
 
 !macro PresetFiles SourcePath OutPath
-    var FileName
     SectionGroup /e Preset
         Section "High Quality" High
-            StrCpy $FileName "RoShade High.ini"
-            StrCpy $2 "${OutPath}\$FileName"
-
-            SectionIn 1
-            SetOutPath "${OutPath}"
-            File "${SourcePath}\RoShade High.ini"
-
-            !insertmacro IniPrint "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
+            !insertmacro AddPreset ${SourcePath} ${OutPath} "RoShade High.ini"
         SectionEnd
         Section "Low Quality" Low
-            StrCpy $FileName "RoShade Low.ini"
-            StrCpy $2 "${OutPath}\$FileName"
-
-            SectionIn 1
-            SetOutPath "${OutPath}"
-            File "${SourcePath}\RoShade Low.ini"
-
-            !insertmacro IniPrint "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
+            !insertmacro AddPreset ${SourcePath} ${OutPath} "RoShade Low.ini"
         SectionEnd
         Section "Medium Quality" Medium
-            StrCpy $FileName "RoShade Medium.ini"
-            StrCpy $2 "${OutPath}\$FileName"
-
-            SectionIn 1
-            SetOutPath "${OutPath}"
-            File "${SourcePath}\RoShade Medium.ini"
-
-            !insertmacro IniPrint "$RobloxPath\Reshade.ini" "GENERAL" "PresetPath" $2
+            !insertmacro AddPreset ${SourcePath} ${OutPath} "RoShade Medium.ini"
         SectionEnd
     SectionGroupEnd
 
@@ -62,12 +50,12 @@ var ShaderDir
             CreateDirectory "${OutPath}\roshade"
 
             SetOutPath $INSTDIR
-            CreateDirectory "$INSTDIR\presets"
+            CreateDirectory ${PRESETFOLDER}
             File "Graphics\AppIcon.ico"
             WriteUninstaller "${UninstallerExe}"
 
             CreateDirectory "$SMPROGRAMS\${NAME}"
-            CreateShortCut "$SMPROGRAMS\${NAME}\Uninstall ${NAME}.lnk" "$INSTDIR\${UninstallerExe}" "" "$INSTDIR\AppIcon.ico"
+            CreateShortCut "$SMPROGRAMS\${NAME}\Uninstall ${NAME}.lnk" "$INSTDIR\${UninstallerExe}" "" "${APPICON}"
 
             CreateDirectory "$PICTURES\${NAME}"
 
@@ -77,7 +65,7 @@ var ShaderDir
             !insertmacro RegStrPrint "${SELFREGLOC}" "RobloxPath" $RobloxPath
             !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayName" '"${NAME} - ${MANUFACTURER}"'
             !insertmacro RegStrPrint "${SELFREGLOC}" "UninstallString" '"$INSTDIR\${UninstallerExe}"'
-            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayIcon" '"$INSTDIR\$0"'
+            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayIcon" '"${APPICON}"'
             !insertmacro RegStrPrint "${SELFREGLOC}" "Publisher" "${MANUFACTURER}"
             !insertmacro RegStrPrint "${SELFREGLOC}" "HelpLink" "${HELPLINK}"
             !insertmacro RegStrPrint "${SELFREGLOC}" "URLInfoAbout" "${ABOUTLINK}"
@@ -89,51 +77,59 @@ var ShaderDir
         Section "Reshade" ReshadeSection
             SectionIn 1 RO
 
+            delete "$RobloxPath\opengl32.dll"
+            delete "$RobloxPath\d3d9.dll"
+            delete "$RobloxPath\dxgi.dll"
+
             SetOutPath "${OutPath}"
-            File /r "${SourcePath}\*"
+            File "${SourcePath}\reshade.dll"
+            Rename "$RobloxPath\reshade.dll" "$RobloxPath\${RENDERAPI}"
 
-            !insertmacro IniPrint "${OutPath}\Reshade.ini" "INPUT" "KeyEffects" $KeyEffects
-            !insertmacro IniPrint "${OutPath}\Reshade.ini" "INPUT" "KeyOverlay" $KeyOverlay
-            !insertmacro IniPrint "${OutPath}\Reshade.ini" "SCREENSHOT" "SavePath" "$PICTURES\Roshade"
+            !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyEffects" $KeyEffects
+            !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyOverlay" $KeyOverlay
+            !insertmacro IniPrint "${RESHADEINI}" "SCREENSHOT" "SavePath" "$PICTURES\${NAME}"
 
-            CreateDirectory "$TEMP\Zeal"
+            CreateDirectory ${TEMPFOLDER}
 
             StrCpy $ShaderDir "${OutPath}reshade-shaders"
             CreateDirectory $ShaderDir
-
             SetOutPath $TEMP
-
-            ${GetSectionNames} "$PLUGINSDIR\Shaders.ini" InstallShadersAsync
+            ${Explode} $2 "," $Repositories
+            ${For} $3 1 $2
+                pop $0
+                ${Explode} $0 "@" $0
+                Call InstallShadersAsync
+            ${Next}
             StrCmp $LauncherTransferID "" +3
             NScurl::wait /ID $LauncherTransferID /END
             ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
             NScurl::wait /TAG "Shader" /END
-            FindFirst $0 $1 "$TEMP\Zeal\*.zip"
-            loop:
-                StrCmp $1 "" done
+            FindFirst $0 $1 "${TEMPFOLDER}\*.zip"
+            !define SHADERID ${__LINE__}
+            loop_${SHADERID}:
+                StrCmp $1 "" done_${SHADERID}
                 !insertmacro Unzip $1
                 FindNext $0 $1
-                GoTo loop
-            done:
+                GoTo loop_${SHADERID}
+            done_${SHADERID}:
+            !undef SHADERID
             FindClose $0
 
-            RMDir /r "$TEMP\Zeal"
+            RMDir /r ${TEMPFOLDER}
+            RMDir /r ${PRESETTEMPFOLDER}
 
             SetOutPath "${OutPath}\roshade"
             File /r "..\Files\Roshade\*"
 
-            delete "$RobloxPath\opengl32.dll"
-            delete "$RobloxPath\d3d9.dll"
-
-
+            !insertmacro MoveFile "$PLUGINSDIR\Reshade.ini" "$RobloxPath\Reshade.ini"
         SectionEnd
     SectionGroupEnd
 !macroend
 
 !macro MoveShaderFiles SourceName Destination
-    !insertmacro MoveFolder "$TEMP\Zeal\${SourceName}\Shaders" "${Destination}\Shaders" "*.fx"
-    !insertmacro MoveFolder "$TEMP\Zeal\${SourceName}\Shaders" "${Destination}\Shaders" "*.fxh"
-    !insertmacro MoveFolder "$TEMP\Zeal\${SourceName}\Textures" "${Destination}\Textures" "*"
+    !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders" "${Destination}\Shaders" "*.fx"
+    !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders" "${Destination}\Shaders" "*.fxh"
+    !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Textures" "${Destination}\Textures" "*"
 !macroend
 
 !macro InstallToTemp SourcePath ZipName
@@ -141,9 +137,9 @@ var ShaderDir
 !macroend
 
 !macro Unzip ZipName
-    !define ID {__LINE__}
+    !define ID ${__LINE__}
     start_${ID}:
-    nsisunz::UnzipToStack "$TEMP\Zeal\${ZipName}" "$TEMP\Zeal"
+    nsisunz::UnzipToStack "${TEMPFOLDER}\${ZipName}" ${TEMPFOLDER}
     Pop $R0
     StrCmp $R0 "success" +5
     StrCpy $R2 "$R0: ${ZipName}"
@@ -156,12 +152,27 @@ var ShaderDir
     pop $R1
     !insertmacro MoveShaderFiles $R1 $ShaderDir
     end_${ID}:
-    Delete "$TEMP\Zeal\${ZipName}"
+    Delete "${TEMPFOLDER}\${ZipName}"
     !undef ID
 !macroend
 
 Function InstallShadersAsync
-    ReadINIStr $R1 $0 $9 "repo"
-    StrCmp $R1 "" +2 0
-    NScurl::http GET "https://github.com/$R1/archive/refs/heads/master.zip" "$TEMP/Zeal/$9.zip" /BACKGROUND /TAG "Shader" /END
+    pop $R7
+    pop $R1
+    ReadINIStr $R0 ${SHADERSINI} $R7 "alwaysinstall"
+    StrCmp $R0 "" 0 install
+    ReadINIStr $R0 ${SHADERSINI} $R7 "techniques"
+    ${Explode} $R2 "," $R0
+    StrCpy $R6 ""
+    ${For} $R3 1 $R2
+        pop $R4
+        ${StrContains} $R5 $R4 $Techniques
+        StrCmp $R5 "" +2
+        StrCpy $R6 $R5
+    ${Next}
+    StrCmp $R6 "" skip
+    install:
+    NScurl::http GET "https://github.com/$R1/archive/refs/heads/master.zip" "${TEMPFOLDER}/$R7.zip" /BACKGROUND /TAG "Shader" /END
+    pop $R2
+    skip:
 FunctionEnd

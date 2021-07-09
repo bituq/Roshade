@@ -1,4 +1,7 @@
 !include LogicLib.nsh
+!include FileFunc.nsh
+!insertmacro Locate 
+!include "Util\MoveFileFolder.nsh"
 
 var LauncherTransferID
 
@@ -8,7 +11,7 @@ var LauncherTransferID
 !macroend
 
 Function RobloxNotFoundError
-    NScurl::http GET "https://www.roblox.com/download/client" "$PLUGINSDIR/RobloxPlayerLauncher.exe" /BACKGROUND /END
+    NScurl::http GET "https://www.roblox.com/download/client" "$PLUGINSDIR\RobloxPlayerLauncher.exe" /BACKGROUND /END
     pop $LauncherTransferID
 FunctionEnd
 
@@ -19,12 +22,13 @@ Function RobloxInProgramFilesError
     MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Roblox will now be reinstalled." IDOK ok
         Abort
     ok:
-    StrCpy $2 "$TEMP\RobloxPlayerLauncher.exe"
-    pop $1
-    Rename $1 $2
+    NScurl::http GET "https://www.roblox.com/download/client" "$PLUGINSDIR\RobloxPlayerLauncher.exe" /POPUP /END
+    pop $R0
+    StrCmp $R0 "OK" +3
+    MessageBox MB_OK "Something went wrong while downloading Roblox: $R0"
+    Abort
     RMDir /r "$PROGRAMFILES\Roblox"
-    ExecWait $2
-    delete $2
+    ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
 FunctionEnd
 
 Function RobloxRunningError

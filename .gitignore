@@ -3,3 +3,5 @@ Roshade Setup.exe
 Setup/Util/MoveFileFolder.nsh
 Setup/Util/Explode.nsh
 Setup/Util/GetSectionNames.nsh
+Setup/Util/ConfigRead.nsh
+Setup/Util/StrContains.nsh

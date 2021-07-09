@@ -1,4 +1,8 @@
-!define VERSION "1.2.4"
+# Important
+InstallDir "$LOCALAPPDATA\Roshade"
+
+# Attributes
+!define VERSION "1.2.6"
 !define MANUFACTURER "Zeal"
 !define NAME "Roshade"
 !define ROBLOXREGLOC "SOFTWARE\ROBLOX Corporation\Environments\roblox-player"
@@ -8,9 +12,25 @@
 !define HELPLINK "https://discord.gg/sjSDVrCjFG"
 !define ABOUTLINK "https://Roshade.com/"
 !define UPDATELINK "https://github.com/bituq/Roshade/releases"
+!define RENDERAPI "opengl32.dll"
+
+# Directories
 !define PRESETFOLDER "$INSTDIR\presets"
 !define RESHADESOURCE "..\Files\Reshade"
 !define PRESETSOURCE "..\Files\Preset"
+!define PRESETTEMPFOLDER "$TEMP\Presets"
+!define TEMPFOLDER "$TEMP\Zeal"
+
+# Files
+!define SPLASHICON "$PLUGINSDIR\Roshade.gif"
+!define SHADERSINI "$PLUGINSDIR\Shaders.ini"
+!define RESHADEINI "$PLUGINSDIR\Reshade.ini"
+!define APPICON "$INSTDIR\AppIcon.ico"
+
+Var Techniques
+Var Repositories
+var RobloxPath
+var ShaderDir
 
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey "ProductName" "${NAME}"
