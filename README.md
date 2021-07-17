@@ -22,3 +22,5 @@ Some dependencies may be installed to the NSIS directory, or otherwise to the re
 - [MoveFileFolder](https://nsis.sourceforge.io/MoveFileFolder)
 - [GetSectionNames](https://nsis.sourceforge.io/Get_all_section_names_of_INI_file)
 - [Explode](https://nsis.sourceforge.io/Explode)
+- [StrContains](https://nsis.sourceforge.io/StrContains)
+- [ConfigRead](https://nsis.sourceforge.io/ConfigRead)
