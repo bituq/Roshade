@@ -1,5 +1,6 @@
 !include LogicLib.nsh
 !include FileFunc.nsh
+!include DetailPrints.nsh
 !insertmacro Locate 
 !include "Util\MoveFileFolder.nsh"
 
@@ -9,6 +10,19 @@ var LauncherTransferID
     MessageBox MB_OK|MB_ICONSTOP "${Message}"
     quit
 !macroend
+
+Function SettingsExistingError
+    pop $R0 # Effects key
+    pop $R1 # Overlay key
+    MessageBox MB_YESNO|MB_ICONEXCLAMATION "Existing Reshade settings have been found. Would you like to overwrite those keybinds?" IDNO no
+        !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyEffects" $KeyEffects
+        !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyOverlay" $KeyOverlay
+        GoTo skip
+    no:
+        !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyEffects" $R0
+        !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyOverlay" $R1
+    skip:
+FunctionEnd
 
 Function RobloxNotFoundError
     NScurl::http GET "https://www.roblox.com/download/client" "$PLUGINSDIR\RobloxPlayerLauncher.exe" /BACKGROUND /END

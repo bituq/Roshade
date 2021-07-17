@@ -2,8 +2,8 @@ Unicode true
 
 !include Attributes.nsh
 !include ModernUI.nsh
-!include ErrorHandling.nsh
 !include InstallationFiles.nsh
+!include "DefaultSections.nsh"
 
 # Uninstallation
 Section Uninstall
@@ -87,7 +87,8 @@ Function DefineRepositories
         Goto installed
     ${EndIf}
 
-    NScurl::http GET "https://api.github.com/repos/$R1/contents/Shaders" $R7 /END
+    ReadINIStr $R2 $0 $9 "search"
+    NScurl::http GET "https://api.github.com/repos/$R1/contents/Shaders/$R2" $R7 /END
     pop $R2
     StrCmp $R2 "403 $\"Forbidden$\"" 0 +3
     WriteINIStr $0 $9 "alwaysinstall" "true"

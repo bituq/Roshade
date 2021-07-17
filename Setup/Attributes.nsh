@@ -2,7 +2,7 @@
 InstallDir "$LOCALAPPDATA\Roshade"
 
 # Attributes
-!define VERSION "1.2.6"
+!define VERSION "1.2.7"
 !define MANUFACTURER "Zeal"
 !define NAME "Roshade"
 !define ROBLOXREGLOC "SOFTWARE\ROBLOX Corporation\Environments\roblox-player"
@@ -29,8 +29,8 @@ InstallDir "$LOCALAPPDATA\Roshade"
 
 Var Techniques
 Var Repositories
-var RobloxPath
-var ShaderDir
+Var RobloxPath
+Var ShaderDir
 
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey "ProductName" "${NAME}"

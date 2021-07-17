@@ -2,45 +2,12 @@
 !include MUI2.nsh
 !include LogicLib.nsh
 !include FileFunc.nsh
-!include DetailPrints.nsh
+!include ErrorHandling.nsh
 !include "Util\GetSectionNames.nsh"
 !include "Util\Explode.nsh"
 !include "Util\ConfigRead.nsh"
 !include "Util\StrContains.nsh"
 !insertmacro Locate
-
-!macro AddPreset SourcePath OutPath FileName
-    StrCpy $2 "${PRESETFOLDER}\${FileName}"
-
-    SectionIn 1
-    SetOutPath "${OutPath}"
-    File "${SourcePath}\${FileName}"
-
-    ${ConfigRead} "${OutPath}\${FileName}" "techniques=" $0
-    StrCpy $Techniques "$Techniques$0,"
-
-    !insertmacro IniPrint "$PLUGINSDIR\Reshade.ini" "GENERAL" "PresetPath" $2
-!macroend
-
-!macro PresetFiles SourcePath OutPath
-    SectionGroup /e Preset
-        Section "High Quality" High
-            !insertmacro AddPreset ${SourcePath} ${OutPath} "RoShade High.ini"
-        SectionEnd
-        Section "Low Quality" Low
-            !insertmacro AddPreset ${SourcePath} ${OutPath} "RoShade Low.ini"
-        SectionEnd
-        Section "Medium Quality" Medium
-            !insertmacro AddPreset ${SourcePath} ${OutPath} "RoShade Medium.ini"
-        SectionEnd
-    SectionGroupEnd
-
-    !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-        !insertmacro MUI_DESCRIPTION_TEXT ${High} "GPU: NVIDIA RTX 2070 / AMD RX 5700 XT$\nCPU: AMD Ryzen 5 3600 / Intel Core i5 9600k"
-        !insertmacro MUI_DESCRIPTION_TEXT ${Medium} "GPU: NVIDIA GTX 1050 Ti / AMD RX 570$\nCPU: AMD Ryzen 5 2600 / Intel Core i5 8600k"
-        !insertmacro MUI_DESCRIPTION_TEXT ${Low} "GPU: NVIDIA GTX 970 / AMD 390$\nCPU: AMD Ryzen 5 1600 / Intel Core i7-4770k"
-    !insertmacro MUI_FUNCTION_DESCRIPTION_END
-!macroend
 
 !macro RequiredFiles SourcePath OutPath
     SectionGroup Required
@@ -85,10 +52,6 @@
             File "${SourcePath}\reshade.dll"
             Rename "$RobloxPath\reshade.dll" "$RobloxPath\${RENDERAPI}"
 
-            !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyEffects" $KeyEffects
-            !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyOverlay" $KeyOverlay
-            !insertmacro IniPrint "${RESHADEINI}" "SCREENSHOT" "SavePath" "$PICTURES\${NAME}"
-
             CreateDirectory ${TEMPFOLDER}
 
             StrCpy $ShaderDir "${OutPath}reshade-shaders"
@@ -121,15 +84,28 @@
             SetOutPath "${OutPath}\roshade"
             File /r "..\Files\Roshade\*"
 
+            ${If} ${FileExists} "$RobloxPath\Reshade.ini"
+                ReadINIStr $0 "$RobloxPath\Reshade.ini" "INPUT" "KeyEffects"
+                ReadINIStr $1 "$RobloxPath\Reshade.ini" "INPUT" "KeyOverlay"
+                ${IfNot} $0 == $KeyEffects
+                ${OrIfNot} $1 == $KeyOverlay
+                push $1
+                push $0
+                Call SettingsExistingError
+                ${EndIf}
+            ${EndIf}
+            
+            !insertmacro IniPrint "${RESHADEINI}" "SCREENSHOT" "SavePath" "$PICTURES\${NAME}"
+
             !insertmacro MoveFile "$PLUGINSDIR\Reshade.ini" "$RobloxPath\Reshade.ini"
         SectionEnd
     SectionGroupEnd
 !macroend
 
-!macro MoveShaderFiles SourceName Destination
-    !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders" "${Destination}\Shaders" "*.fx"
-    !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders" "${Destination}\Shaders" "*.fxh"
-    !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Textures" "${Destination}\Textures" "*"
+!macro MoveShaderFiles SourceName Destination Search
+    !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders\${Search}" "${Destination}\Shaders" "*.fx"
+    !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders\${Search}" "${Destination}\Shaders" "*.fxh"
+    !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Textures\${Search}" "${Destination}\Textures" "*"
 !macroend
 
 !macro InstallToTemp SourcePath ZipName
@@ -150,7 +126,10 @@
     Pop $R1
     ${Explode} $R1 "\" $R1
     pop $R1
-    !insertmacro MoveShaderFiles $R1 $ShaderDir
+    ${Explode} $R2 "." ${ZipName}
+    pop $R2
+    ReadINIStr $R3 ${SHADERSINI} $R2 "search"
+    !insertmacro MoveShaderFiles $R1 $ShaderDir $R3
     end_${ID}:
     Delete "${TEMPFOLDER}\${ZipName}"
     !undef ID
@@ -172,7 +151,11 @@ Function InstallShadersAsync
     ${Next}
     StrCmp $R6 "" skip
     install:
-    NScurl::http GET "https://github.com/$R1/archive/refs/heads/master.zip" "${TEMPFOLDER}/$R7.zip" /BACKGROUND /TAG "Shader" /END
+    ReadINIStr $R0 ${SHADERSINI} $R7 "branch"
+    StrCmp $R0 "" 0 +2
+    StrCpy $R0 "master"
+    NScurl::http GET "https://github.com/$R1/archive/refs/heads/$R0.zip" "${TEMPFOLDER}/$R7.zip" /BACKGROUND /TAG "Shader" /END
+    DetailPrint "Installing $R7.zip"
     pop $R2
     skip:
 FunctionEnd
