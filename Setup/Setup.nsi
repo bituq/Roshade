@@ -37,7 +37,7 @@ Function .onInit
     CreateDirectory ${PRESETTEMPFOLDER}
     newadvsplash::show /NOUNLOAD 1000 300 0 -2 /PASSIVE /BANNER /NOCANCEL ${SPLASHICON}
 
-    !define searchKey "RobloxPlayerLauncher.exe"
+    !define searchKey "RobloxPlayerBeta.exe"
     ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=${searchKey}" "RobloxInProgramFiles"
 
     ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"

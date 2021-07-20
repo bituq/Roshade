@@ -2,7 +2,7 @@
 InstallDir "$LOCALAPPDATA\Roshade"
 
 # Attributes
-!define VERSION "1.2.7"
+!define VERSION "1.2.8"
 !define MANUFACTURER "Zeal"
 !define NAME "Roshade"
 !define ROBLOXREGLOC "SOFTWARE\ROBLOX Corporation\Environments\roblox-player"

@@ -14,8 +14,6 @@
         Section "Roshade"
             SectionIn 1 RO
 
-            CreateDirectory "${OutPath}\roshade"
-
             SetOutPath $INSTDIR
             CreateDirectory ${PRESETFOLDER}
             File "Graphics\AppIcon.ico"
@@ -44,18 +42,8 @@
         Section "Reshade" ReshadeSection
             SectionIn 1 RO
 
-            delete "$RobloxPath\opengl32.dll"
-            delete "$RobloxPath\d3d9.dll"
-            delete "$RobloxPath\dxgi.dll"
-
-            SetOutPath "${OutPath}"
-            File "${SourcePath}\reshade.dll"
-            Rename "$RobloxPath\reshade.dll" "$RobloxPath\${RENDERAPI}"
-
             CreateDirectory ${TEMPFOLDER}
 
-            StrCpy $ShaderDir "${OutPath}reshade-shaders"
-            CreateDirectory $ShaderDir
             SetOutPath $TEMP
             ${Explode} $2 "," $Repositories
             ${For} $3 1 $2
@@ -66,6 +54,9 @@
             StrCmp $LauncherTransferID "" +3
             NScurl::wait /ID $LauncherTransferID /END
             ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
+            ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
+            StrCpy $ShaderDir "$RobloxPath\reshade-shaders"
+            CreateDirectory $ShaderDir
             NScurl::wait /TAG "Shader" /END
             FindFirst $0 $1 "${TEMPFOLDER}\*.zip"
             !define SHADERID ${__LINE__}
@@ -81,8 +72,17 @@
             RMDir /r ${TEMPFOLDER}
             RMDir /r ${PRESETTEMPFOLDER}
 
-            SetOutPath "${OutPath}\roshade"
+            CreateDirectory "$RobloxPath\roshade"
+            SetOutPath "$RobloxPath\roshade"
             File /r "..\Files\Roshade\*"
+
+            delete "$RobloxPath\opengl32.dll"
+            delete "$RobloxPath\d3d9.dll"
+            delete "$RobloxPath\dxgi.dll"
+
+            SetOutPath $RobloxPath
+            File "${SourcePath}\reshade.dll"
+            Rename "$RobloxPath\reshade.dll" "$RobloxPath\${RENDERAPI}"
 
             ${If} ${FileExists} "$RobloxPath\Reshade.ini"
                 ReadINIStr $0 "$RobloxPath\Reshade.ini" "INPUT" "KeyEffects"
