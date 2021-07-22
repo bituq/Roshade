@@ -7,6 +7,7 @@
 !include "Util\Explode.nsh"
 !include "Util\ConfigRead.nsh"
 !include "Util\StrContains.nsh"
+!include "Util\DumpLog.nsh"
 !insertmacro Locate
 
 !macro RequiredFiles SourcePath OutPath
@@ -23,21 +24,6 @@
             CreateShortCut "$SMPROGRAMS\${NAME}\Uninstall ${NAME}.lnk" "$INSTDIR\${UninstallerExe}" "" "${APPICON}"
 
             CreateDirectory "$PICTURES\${NAME}"
-
-            ReadRegStr $1 HKCU "${ROBLOXREGLOC}" "curPlayerVer"
-            !insertmacro RegStrPrint "${SELFREGLOC}" "RobloxVersion" $1
-            !insertmacro RegStrPrint "${SELFREGLOC}" "Version" "${VERSION}"
-            !insertmacro RegStrPrint "${SELFREGLOC}" "RobloxPath" $RobloxPath
-            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayName" '"${NAME} - ${MANUFACTURER}"'
-            !insertmacro RegStrPrint "${SELFREGLOC}" "UninstallString" '"$INSTDIR\${UninstallerExe}"'
-            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayIcon" '"${APPICON}"'
-            !insertmacro RegStrPrint "${SELFREGLOC}" "Publisher" "${MANUFACTURER}"
-            !insertmacro RegStrPrint "${SELFREGLOC}" "HelpLink" "${HELPLINK}"
-            !insertmacro RegStrPrint "${SELFREGLOC}" "URLInfoAbout" "${ABOUTLINK}"
-            !insertmacro RegStrPrint "${SELFREGLOC}" "URLUpdateInfo" "${UPDATELINK}"
-            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayVersion" "${VERSION}"
-            WriteRegDWORD HKCU "${SELFREGLOC}" "NoModify" 1
-            WriteRegDWORD HKCU "${SELFREGLOC}" "NoRepair" 1
         SectionEnd
         Section "Reshade" ReshadeSection
             SectionIn 1 RO
@@ -55,6 +41,7 @@
             NScurl::wait /ID $LauncherTransferID /END
             ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
             ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
+            DetailPrint "Roblox install location: $RobloxPath"
             StrCpy $ShaderDir "$RobloxPath\reshade-shaders"
             CreateDirectory $ShaderDir
             NScurl::wait /TAG "Shader" /END
@@ -71,6 +58,7 @@
 
             RMDir /r ${TEMPFOLDER}
             RMDir /r ${PRESETTEMPFOLDER}
+            RMDir /r "$RobloxPath\roshade"
 
             CreateDirectory "$RobloxPath\roshade"
             SetOutPath "$RobloxPath\roshade"
@@ -84,13 +72,19 @@
             File "${SourcePath}\reshade.dll"
             Rename "$RobloxPath\reshade.dll" "$RobloxPath\${RENDERAPI}"
 
+            DetailPrint "-- Reshade Settings --"
             ${If} ${FileExists} "$RobloxPath\Reshade.ini"
                 ReadINIStr $0 "$RobloxPath\Reshade.ini" "INPUT" "KeyEffects"
                 ReadINIStr $1 "$RobloxPath\Reshade.ini" "INPUT" "KeyOverlay"
+                DetailPrint "- Effects Key -"
+                DetailPrint "$0 $KeyEffects"
+                DetailPrint "- Overlay Key - "
+                DetailPrint "$1 $KeyOverlay"
                 ${IfNot} $0 == $KeyEffects
                 ${OrIfNot} $1 == $KeyOverlay
                 push $1
                 push $0
+                DetailPrint "No match"
                 Call SettingsExistingError
                 ${EndIf}
             ${EndIf}
@@ -98,11 +92,31 @@
             !insertmacro IniPrint "${RESHADEINI}" "SCREENSHOT" "SavePath" "$PICTURES\${NAME}"
 
             !insertmacro MoveFile "$PLUGINSDIR\Reshade.ini" "$RobloxPath\Reshade.ini"
+
+            StrCpy $0 "$TEMP\RoshadeInstallation.log"
+            Push $0
+
+            ReadRegStr $1 HKCU "${ROBLOXREGLOC}" "curPlayerVer"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "RobloxVersion" $1
+            !insertmacro RegStrPrint "${SELFREGLOC}" "Version" "${VERSION}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "RobloxPath" $RobloxPath
+            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayName" '"${NAME} - ${MANUFACTURER}"'
+            !insertmacro RegStrPrint "${SELFREGLOC}" "UninstallString" '"$INSTDIR\${UninstallerExe}"'
+            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayIcon" '"${APPICON}"'
+            !insertmacro RegStrPrint "${SELFREGLOC}" "Publisher" "${MANUFACTURER}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "HelpLink" "${HELPLINK}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "URLInfoAbout" "${ABOUTLINK}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "URLUpdateInfo" "${UPDATELINK}"
+            !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayVersion" "${VERSION}"
+            WriteRegDWORD HKCU "${SELFREGLOC}" "NoModify" 1
+            WriteRegDWORD HKCU "${SELFREGLOC}" "NoRepair" 1
+            Call DumpLog
         SectionEnd
     SectionGroupEnd
 !macroend
 
 !macro MoveShaderFiles SourceName Destination Search
+    DetailPrint "${TEMPFOLDER}\${SourceName} contents to ${Destination}"
     !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders\${Search}" "${Destination}\Shaders" "*.fx"
     !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders\${Search}" "${Destination}\Shaders" "*.fxh"
     !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Textures\${Search}" "${Destination}\Textures" "*"
@@ -117,9 +131,9 @@
     start_${ID}:
     nsisunz::UnzipToStack "${TEMPFOLDER}\${ZipName}" ${TEMPFOLDER}
     Pop $R0
-    StrCmp $R0 "success" +5
     StrCpy $R2 "$R0: ${ZipName}"
     DetailPrint $R2
+    StrCmp $R0 "success" +3
     MessageBox MB_ABORTRETRYIGNORE|MB_ICONEXCLAMATION $R2 IDIGNORE end_${ID} IDRETRY start_${ID}
         Abort
 
@@ -155,7 +169,7 @@ Function InstallShadersAsync
     StrCmp $R0 "" 0 +2
     StrCpy $R0 "master"
     NScurl::http GET "https://github.com/$R1/archive/refs/heads/$R0.zip" "${TEMPFOLDER}/$R7.zip" /BACKGROUND /TAG "Shader" /END
-    DetailPrint "Installing $R7.zip"
     pop $R2
+    DetailPrint "$R1 GET"
     skip:
 FunctionEnd

@@ -33,7 +33,7 @@ Function .onInit
     File "Graphics\Roshade.gif"
     File "Shaders.ini"
     File "${RESHADESOURCE}\Reshade.ini"
-
+    
     CreateDirectory ${PRESETTEMPFOLDER}
     newadvsplash::show /NOUNLOAD 1000 300 0 -2 /PASSIVE /BANNER /NOCANCEL ${SPLASHICON}
 
@@ -41,19 +41,23 @@ Function .onInit
     ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=${searchKey}" "RobloxInProgramFiles"
 
     ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
+    DetailPrint "Roblox install location: $RobloxPath"
     ${IfNot} ${FileExists} "$RobloxPath\${searchKey}"
+        DetailPrint "${searchKey} was not found."
         call RobloxNotFoundError
     ${EndIf}
 
     ReadRegStr $R0 HKCU ${SELFREGLOC} "Version"
     ${GetSectionNames} ${SHADERSINI} DefineRepositories
 
+    DetailPrint "-- Techniques --"
     StrCpy $Techniques ""
     FindFirst $0 $1 "${PRESETTEMPFOLDER}\*.ini"
     !define PRESETID ${__LINE__}
     loop_${PRESETID}:
         StrCmp $1 "" done_${PRESETID}
         ${ConfigRead} $1 "techniques" $2
+        DetailPrint "$1: $2"
         StrCpy $Techniques "$Techniques$2,"
         Delete "${PRESETFOLDER}\$1"
         Rename "${PRESETTEMPFOLDER}\$1" "${PRESETFOLDER}\$1" 
@@ -69,6 +73,7 @@ Function .onInit
     Call RobloxRunningError
     SectionSetSize ${ReshadeSection} 36860
     newadvsplash::stop /WAIT
+    DetailPrint "-- Init Done --"
 FunctionEnd
 
 Function RobloxInProgramFiles
@@ -90,6 +95,7 @@ Function DefineRepositories
     ReadINIStr $R2 $0 $9 "search"
     NScurl::http GET "https://api.github.com/repos/$R1/contents/Shaders/$R2" $R7 /END
     pop $R2
+    DetailPrint "$R1 GET $R2"
     StrCmp $R2 "403 $\"Forbidden$\"" 0 +3
     WriteINIStr $0 $9 "alwaysinstall" "true"
     GoTo loopend
