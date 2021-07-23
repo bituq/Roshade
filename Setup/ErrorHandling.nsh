@@ -36,14 +36,12 @@ Function RobloxInProgramFilesError
     MessageBox MB_YESNO|MB_ICONQUESTION "Roshade cannot be installed when Roblox is located in Program Files (x86). Would you like to reinstall Roblox automatically?" IDYES yes
         Abort
     yes:
-    MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Roblox will now be reinstalled." IDOK ok
-        Abort
-    ok:
     NScurl::http GET "https://www.roblox.com/download/client" "$PLUGINSDIR\RobloxPlayerLauncher.exe" /POPUP /END
     pop $R0
     StrCmp $R0 "OK" +3
     MessageBox MB_OK "Something went wrong while downloading Roblox: $R0"
     Abort
+    ExecWait '"$PLUGINSDIR\RobloxPlayerLauncher.exe" -uninstall'
     RMDir /r "$PROGRAMFILES\Roblox"
     ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
     DetailPrint "Roblox has been reinstalled."

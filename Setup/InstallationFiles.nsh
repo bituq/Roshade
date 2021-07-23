@@ -11,8 +11,8 @@
 !insertmacro Locate
 
 !macro RequiredFiles SourcePath OutPath
-    SectionGroup Required
-        Section "Roshade"
+    SectionGroup "-Required"
+        Section "-Roshade"
             SectionIn 1 RO
 
             SetOutPath $INSTDIR
@@ -25,7 +25,7 @@
 
             CreateDirectory "$PICTURES\${NAME}"
         SectionEnd
-        Section "Reshade" ReshadeSection
+        Section "-Reshade" ReshadeSection
             SectionIn 1 RO
 
             CreateDirectory ${TEMPFOLDER}
@@ -37,11 +37,13 @@
                 ${Explode} $0 "@" $0
                 Call InstallShadersAsync
             ${Next}
+
             StrCmp $LauncherTransferID "" +3
             NScurl::wait /ID $LauncherTransferID /END
             ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
             ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
             DetailPrint "Roblox install location: $RobloxPath"
+
             StrCpy $ShaderDir "$RobloxPath\reshade-shaders"
             CreateDirectory $ShaderDir
             NScurl::wait /TAG "Shader" /END
@@ -84,7 +86,6 @@
                 ${OrIfNot} $1 == $KeyOverlay
                 push $1
                 push $0
-                DetailPrint "No match"
                 Call SettingsExistingError
                 ${EndIf}
             ${EndIf}

@@ -78,9 +78,9 @@ FunctionEnd
 
 Function RobloxInProgramFiles
     StrCpy $0 StopLocate
-    push $0
     push $R9
     call RobloxInProgramFilesError
+    push $0
 FunctionEnd
 
 Function DefineRepositories
