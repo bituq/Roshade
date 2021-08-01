@@ -27,4 +27,3 @@ Some dependencies may be installed to the NSIS directory, or otherwise to the re
 - [Explode](https://nsis.sourceforge.io/Explode)
 - [StrContains](https://nsis.sourceforge.io/StrContains)
 - [ConfigRead](https://nsis.sourceforge.io/ConfigRead)
-- [DumpLog](https://nsis.sourceforge.io/Dump_log_to_file)
