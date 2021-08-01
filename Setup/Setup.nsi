@@ -1,9 +1,10 @@
-Unicode true
+﻿Unicode true
+RequestExecutionLevel user
 
 !include Attributes.nsh
 !include ModernUI.nsh
-!include InstallationFiles.nsh
 !include "DefaultSections.nsh"
+!include InstallationFiles.nsh
 
 # Uninstallation
 Section Uninstall
@@ -24,56 +25,49 @@ Function un.onInit
 FunctionEnd
 
 # Installation
-!insertmacro PresetFiles ${PRESETSOURCE} ${PRESETFOLDER}
+!insertmacro PresetFiles ${PRESETSOURCE} ${PRESETTEMPFOLDER}
 !insertmacro RequiredFiles ${RESHADESOURCE} $RobloxPath
 
+# Installer Init
 Function .onInit
+    Var /GLOBAL LOGFILE
+    System::Call 'ole32::CoCreateGuid(g .s)'
+    pop $LOGFILE
+    StrCpy $LOGFILE "${LOGDIRECTORY}\$LOGFILE.log"
+    CreateDirectory ${LOGDIRECTORY}
+    LogEx::Init "true" $LOGFILE
+
     InitPluginsDir
     SetOutPath $PLUGINSDIR
     File "Graphics\Roshade.gif"
-    File "Shaders.ini"
     File "${RESHADESOURCE}\Reshade.ini"
+    File "Shaders.ini"
     
     CreateDirectory ${PRESETTEMPFOLDER}
     newadvsplash::show /NOUNLOAD 1000 300 0 -2 /PASSIVE /BANNER /NOCANCEL ${SPLASHICON}
+    !insertmacro ToLog $LOGFILE "Output" "$$INSTDIR: $INSTDIR"
+    !insertmacro ToLog $LOGFILE "Output" "$$PLUGINSDIR: $PLUGINSDIR"
 
     !define searchKey "RobloxPlayerBeta.exe"
     ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=${searchKey}" "RobloxInProgramFiles"
 
     ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
-    DetailPrint "Roblox install location: $RobloxPath"
+    !insertmacro ToLog $LOGFILE "Registry" "${ROBLOXUNINSTALLREGLOC}\InstallLocation: $RobloxPath"
     ${IfNot} ${FileExists} "$RobloxPath\${searchKey}"
-        DetailPrint "${searchKey} was not found."
         call RobloxNotFoundError
     ${EndIf}
 
     ReadRegStr $R0 HKCU ${SELFREGLOC} "Version"
     ${GetSectionNames} ${SHADERSINI} DefineRepositories
-
-    DetailPrint "-- Techniques --"
-    StrCpy $Techniques ""
-    FindFirst $0 $1 "${PRESETTEMPFOLDER}\*.ini"
-    !define PRESETID ${__LINE__}
-    loop_${PRESETID}:
-        StrCmp $1 "" done_${PRESETID}
-        ${ConfigRead} $1 "techniques" $2
-        DetailPrint "$1: $2"
-        StrCpy $Techniques "$Techniques$2,"
-        Delete "${PRESETFOLDER}\$1"
-        Rename "${PRESETTEMPFOLDER}\$1" "${PRESETFOLDER}\$1" 
-        FindNext $0 $1
-        GoTo loop_${PRESETID}
-    done_${PRESETID}:
-    !undef PRESETID
-    FindClose $0
+    !insertmacro ToLog $LOGFILE "Output" "Repositories: $Repositories"
 
     nsProcess::_FindProcess "RobloxPlayerBeta.exe"
     pop $R0
+    !insertmacro ToLog $LOGFILE "nsProcess" "FindProcess RobloxPlayerBeta.exe with code: $R0"
     StrCmp $R0 0 0 +2
     Call RobloxRunningError
     SectionSetSize ${ReshadeSection} 36860
     newadvsplash::stop /WAIT
-    DetailPrint "-- Init Done --"
 FunctionEnd
 
 Function RobloxInProgramFiles
@@ -93,13 +87,19 @@ Function DefineRepositories
     ${EndIf}
 
     ReadINIStr $R2 $0 $9 "search"
-    NScurl::http GET "https://api.github.com/repos/$R1/contents/Shaders/$R2" $R7 /END
-    pop $R2
-    DetailPrint "$R1 GET $R2"
-    StrCmp $R2 "403 $\"Forbidden$\"" 0 +3
+    ReadINIStr $R9 $0 $9 "branch"
+    StrCmp $R9 "" 0 +2
+    StrCpy $R9 "master"
+    StrCpy $R9 "?ref=$R9"
+    StrCmp $R2 "" +2
+    StrCpy $R2 "/$R2"
+    NScurl::http GET "https://api.github.com/repos/$R1/contents/Shaders$R2$R9" $R7 /END
+    pop $R3
+    !insertmacro ToLog $LOGFILE "NScurl" "https://api.github.com/repos/$R1/contents/Shaders$R2$R9: $R3"
+    StrCmp $R3 "OK" +4 0
+    Delete "$TEMP\$9-techniques.json"
     WriteINIStr $0 $9 "alwaysinstall" "true"
     GoTo loopend
-    StrCmp $R2 "OK" 0 skip
 
     installed:
     nsJSON::Set /tree $R1 /file $R7

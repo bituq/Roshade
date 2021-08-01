@@ -25,7 +25,12 @@ Page custom fnc_ReshadeSettings_Show
 !insertmacro MUI_PAGE_COMPONENTS
 
 /* Installation Page */
+Function showInstFiles
+    titprog::Start
+    w7tbp::Start
+FunctionEnd
 !define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW showInstFiles
 !insertmacro MUI_PAGE_INSTFILES
 
 /* Finish Page */

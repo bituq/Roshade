@@ -4,8 +4,6 @@
 !include FileFunc.nsh
 !include ErrorHandling.nsh
 !include "Util\GetSectionNames.nsh"
-!include "Util\Explode.nsh"
-!include "Util\ConfigRead.nsh"
 !include "Util\StrContains.nsh"
 !include "Util\DumpLog.nsh"
 !insertmacro Locate
@@ -38,27 +36,32 @@
                 Call InstallShadersAsync
             ${Next}
 
-            StrCmp $LauncherTransferID "" +3
+            StrCmp $LauncherTransferID "" +4
             NScurl::wait /ID $LauncherTransferID /END
+            !insertmacro ToLog $LOGFILE "NScurl" "Transfer with ID $LauncherTransferID has completed. Executing RobloxPlayerLauncher.exe."
             ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
             ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
-            DetailPrint "Roblox install location: $RobloxPath"
+            !insertmacro ToLog $LOGFILE "Registry" "${ROBLOXUNINSTALLREGLOC}\InstallLocation: $RobloxPath"
 
             StrCpy $ShaderDir "$RobloxPath\reshade-shaders"
             CreateDirectory $ShaderDir
-            NScurl::wait /TAG "Shader" /END
-            FindFirst $0 $1 "${TEMPFOLDER}\*.zip"
-            !define SHADERID ${__LINE__}
-            loop_${SHADERID}:
-                StrCmp $1 "" done_${SHADERID}
-                !insertmacro Unzip $1
-                FindNext $0 $1
-                GoTo loop_${SHADERID}
-            done_${SHADERID}:
-            !undef SHADERID
-            FindClose $0
+            CreateDirectory "$ShaderDir\Textures"
 
-            RMDir /r ${TEMPFOLDER}
+            SetOutPath "$RobloxPath\reshade-shaders\Textures"
+            File /r "..\Files\Textures\*"
+
+            FindFirst $0 $1 "${PRESETTEMPFOLDER}\*.ini"
+            !define PRESETID ${__LINE__}
+            loop_${PRESETID}:
+                StrCmp $1 "" done_${PRESETID}
+                Delete "${PRESETFOLDER}\$1"
+                Rename "${PRESETTEMPFOLDER}\$1" "${PRESETFOLDER}\$1"
+                !insertmacro ToLog $LOGFILE "Output" "Moving $1 to ${PRESETFOLDER}."
+                FindNext $0 $1
+                GoTo loop_${PRESETID}
+            done_${PRESETID}:
+            !undef PRESETID
+            FindClose $0
             RMDir /r ${PRESETTEMPFOLDER}
             RMDir /r "$RobloxPath\roshade"
 
@@ -72,30 +75,32 @@
 
             SetOutPath $RobloxPath
             File "${SourcePath}\reshade.dll"
+            !insertmacro ToLog $LOGFILE "Output" "Rendering API: ${RENDERAPI}."
             Rename "$RobloxPath\reshade.dll" "$RobloxPath\${RENDERAPI}"
 
-            DetailPrint "-- Reshade Settings --"
             ${If} ${FileExists} "$RobloxPath\Reshade.ini"
+                !insertmacro ToLog $LOGFILE "Output" "Existing Reshade settings have been found."
                 ReadINIStr $0 "$RobloxPath\Reshade.ini" "INPUT" "KeyEffects"
                 ReadINIStr $1 "$RobloxPath\Reshade.ini" "INPUT" "KeyOverlay"
-                DetailPrint "- Effects Key -"
-                DetailPrint "$0 $KeyEffects"
-                DetailPrint "- Overlay Key - "
-                DetailPrint "$1 $KeyOverlay"
                 ${IfNot} $0 == $KeyEffects
                 ${OrIfNot} $1 == $KeyOverlay
                 push $1
                 push $0
                 Call SettingsExistingError
+                ${Else}
+                !insertmacro ToLog $LOGFILE "Output" "Existing settings match the chosen settings."
                 ${EndIf}
+            ${Else}
+                !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyEffects" $KeyEffects
+                !insertmacro IniPrint "${RESHADEINI}" "INPUT" "KeyOverlay" $KeyOverlay
             ${EndIf}
             
             !insertmacro IniPrint "${RESHADEINI}" "SCREENSHOT" "SavePath" "$PICTURES\${NAME}"
+            !insertmacro ToLog $LOGFILE "Output" "Screenshot path set to $PICTURES\${NAME}."
+
+            Delete "$RobloxPath\Reshade.ini"
 
             !insertmacro MoveFile "$PLUGINSDIR\Reshade.ini" "$RobloxPath\Reshade.ini"
-
-            StrCpy $0 "$TEMP\RoshadeInstallation.log"
-            Push $0
 
             ReadRegStr $1 HKCU "${ROBLOXREGLOC}" "curPlayerVer"
             !insertmacro RegStrPrint "${SELFREGLOC}" "RobloxVersion" $1
@@ -111,13 +116,25 @@
             !insertmacro RegStrPrint "${SELFREGLOC}" "DisplayVersion" "${VERSION}"
             WriteRegDWORD HKCU "${SELFREGLOC}" "NoModify" 1
             WriteRegDWORD HKCU "${SELFREGLOC}" "NoRepair" 1
-            Call DumpLog
+
+            NScurl::wait /TAG "Shader" /END
+            FindFirst $0 $1 "${TEMPFOLDER}\*.zip"
+            !define SHADERID ${__LINE__}
+            loop_${SHADERID}:
+                StrCmp $1 "" done_${SHADERID}
+                !insertmacro Unzip $1
+                FindNext $0 $1
+                GoTo loop_${SHADERID}
+            done_${SHADERID}:
+            !undef SHADERID
+            FindClose $0
+            RMDir /r ${TEMPFOLDER}
         SectionEnd
     SectionGroupEnd
 !macroend
 
 !macro MoveShaderFiles SourceName Destination Search
-    DetailPrint "${TEMPFOLDER}\${SourceName} contents to ${Destination}"
+    !insertmacro ToLog $LOGFILE "Output" "Moving contents of ${TEMPFOLDER}\${SourceName} to ${Destination}"
     !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders\${Search}" "${Destination}\Shaders" "*.fx"
     !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Shaders\${Search}" "${Destination}\Shaders" "*.fxh"
     !insertmacro MoveFolder "${TEMPFOLDER}\${SourceName}\Textures\${Search}" "${Destination}\Textures" "*"
@@ -133,7 +150,7 @@
     nsisunz::UnzipToStack "${TEMPFOLDER}\${ZipName}" ${TEMPFOLDER}
     Pop $R0
     StrCpy $R2 "$R0: ${ZipName}"
-    DetailPrint $R2
+    !insertmacro ToLog $LOGFILE "nsisunz" "Unzipping ${ZipName} with response: $R0."
     StrCmp $R0 "success" +3
     MessageBox MB_ABORTRETRYIGNORE|MB_ICONEXCLAMATION $R2 IDIGNORE end_${ID} IDRETRY start_${ID}
         Abort
@@ -156,14 +173,32 @@ Function InstallShadersAsync
     ReadINIStr $R0 ${SHADERSINI} $R7 "alwaysinstall"
     StrCmp $R0 "" 0 install
     ReadINIStr $R0 ${SHADERSINI} $R7 "techniques"
-    ${Explode} $R2 "," $R0
+    StrCpy $Techniques ""
     StrCpy $R6 ""
-    ${For} $R3 1 $R2
-        pop $R4
-        ${StrContains} $R5 $R4 $Techniques
-        StrCmp $R5 "" +2
-        StrCpy $R6 $R5
-    ${Next}
+    FindFirst $R8 $R9 "${PRESETTEMPFOLDER}\*.ini"
+    !define PRESETID ${__LINE__}
+    loop_${PRESETID}:
+        StrCmp $R9 "" done_${PRESETID}
+        ${ConfigRead} "${PRESETTEMPFOLDER}\$R9" "Techniques=" $Techniques
+        ${Explode} $R2 "," $Techniques
+        ${For} $R3 1 $R2
+            pop $R4
+            ${Explode} $R5 "@" $R4
+            IntCmp $R5 2 0 +7
+            pop $R4
+            pop $R4
+            StrCpy $R5 ""
+            ${StrContains} $R5 $R4 $R0
+            StrCmp $R5 "" +4
+            StrCmp $R6 "" 0 +3
+            StrCpy $R6 $R5
+            !insertmacro ToLog $LOGFILE "Output" "$R6 ($R7) found in $R9."
+        ${Next}
+        FindNext $R8 $R9
+        GoTo loop_${PRESETID}
+    done_${PRESETID}:
+    !undef PRESETID
+    FindClose $R8
     StrCmp $R6 "" skip
     install:
     ReadINIStr $R0 ${SHADERSINI} $R7 "branch"
@@ -171,6 +206,7 @@ Function InstallShadersAsync
     StrCpy $R0 "master"
     NScurl::http GET "https://github.com/$R1/archive/refs/heads/$R0.zip" "${TEMPFOLDER}/$R7.zip" /BACKGROUND /TAG "Shader" /END
     pop $R2
+    !insertmacro ToLog $LOGFILE "NScurl" "Adding installation of $R1 to a background thread. ($R2)"
     DetailPrint "$R1 GET"
     skip:
 FunctionEnd

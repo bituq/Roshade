@@ -14,11 +14,14 @@ The installer is written in [NSIS](https://nsis.sourceforge.io/Download "Downloa
 ### Libraries
 
 Some dependencies may be installed to the NSIS directory, or otherwise to the repository's *Setup\Util* folder. For more information on installing plugins to the NSIS directory, click [here](https://nsis.sourceforge.io/How_can_I_install_a_plugin).
-##### NSIS Directory:
+##### NSIS Plugins Directory:
+- [LogEx](https://nsis.sourceforge.io/LogEx_plug-in)
 - [NScurl](https://github.com/negrutiu/nsis-nscurl)
 - [Nsisunz](https://github.com/past-due/nsisunz)
 - [NsProcess](https://nsis.sourceforge.io/mediawiki/index.php?title=NsProcess_plugin&oldid=24277)
-##### Setup\Util folder:
+- [TitlebarProgress](https://nsis.sourceforge.io/TitlebarProgress_plug-in)
+- [TaskbarProgress](https://nsis.sourceforge.io/TaskbarProgress_plug-in)
+##### Setup->Util folder:
 - [MoveFileFolder](https://nsis.sourceforge.io/MoveFileFolder)
 - [GetSectionNames](https://nsis.sourceforge.io/Get_all_section_names_of_INI_file)
 - [Explode](https://nsis.sourceforge.io/Explode)

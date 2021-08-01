@@ -2,7 +2,7 @@
 InstallDir "$LOCALAPPDATA\Roshade"
 
 # Attributes
-!define VERSION "1.2.10"
+!define VERSION "1.3.1"
 !define MANUFACTURER "Zeal"
 !define NAME "Roshade"
 !define ROBLOXREGLOC "SOFTWARE\ROBLOX Corporation\Environments\roblox-player"
@@ -12,7 +12,7 @@ InstallDir "$LOCALAPPDATA\Roshade"
 !define HELPLINK "https://discord.gg/sjSDVrCjFG"
 !define ABOUTLINK "https://Roshade.com/"
 !define UPDATELINK "https://github.com/bituq/Roshade/releases"
-!define RENDERAPI "opengl32.dll"
+!define RENDERAPI "d3d11.dll"
 
 # Directories
 !define PRESETFOLDER "$INSTDIR\presets"
@@ -20,6 +20,7 @@ InstallDir "$LOCALAPPDATA\Roshade"
 !define PRESETSOURCE "..\Files\Preset"
 !define PRESETTEMPFOLDER "$TEMP\Presets"
 !define TEMPFOLDER "$TEMP\Zeal"
+!define LOGDIRECTORY "$TEMP\roshade"
 
 # Files
 !define SPLASHICON "$PLUGINSDIR\Roshade.gif"
@@ -31,6 +32,7 @@ Var Techniques
 Var Repositories
 Var RobloxPath
 Var ShaderDir
+Var PresetPriority # Determine which preset should be loaded. Lower = higher priority.
 
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey "ProductName" "${NAME}"
@@ -44,4 +46,3 @@ Caption "$(^Name) Installation"
 Outfile "..\RoshadeSetup.exe"
 BrandingText "${MANUFACTURER}"
 CRCCHECK force
-RequestExecutionLevel user
