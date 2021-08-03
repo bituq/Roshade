@@ -45,10 +45,6 @@
 
             StrCpy $ShaderDir "$RobloxPath\reshade-shaders"
             CreateDirectory $ShaderDir
-            CreateDirectory "$ShaderDir\Textures"
-
-            SetOutPath "$RobloxPath\reshade-shaders\Textures"
-            File /r "..\Files\Textures\*"
 
             FindFirst $0 $1 "${PRESETTEMPFOLDER}\*.ini"
             !define PRESETID ${__LINE__}
@@ -129,6 +125,9 @@
             !undef SHADERID
             FindClose $0
             RMDir /r ${TEMPFOLDER}
+
+            SetOutPath "$RobloxPath\reshade-shaders\Textures"
+            File /r "..\Files\Textures\*"
         SectionEnd
     SectionGroupEnd
 !macroend
