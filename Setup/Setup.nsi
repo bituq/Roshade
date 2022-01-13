@@ -1,10 +1,8 @@
-﻿Unicode true
-RequestExecutionLevel user
-
-!include Attributes.nsh
+﻿!include Attributes.nsh
 !include ModernUI.nsh
-!include "DefaultSections.nsh"
+!include DefaultSections.nsh
 !include InstallationFiles.nsh
+
 
 # Uninstallation
 Section Uninstall
@@ -39,12 +37,10 @@ Function .onInit
 
     InitPluginsDir
     SetOutPath $PLUGINSDIR
-    File "Graphics\Roshade.gif"
     File "${RESHADESOURCE}\Reshade.ini"
     File "Shaders.ini"
     
     CreateDirectory ${PRESETTEMPFOLDER}
-    newadvsplash::show /NOUNLOAD 1000 300 0 -2 /PASSIVE /BANNER /NOCANCEL ${SPLASHICON}
     !insertmacro ToLog $LOGFILE "Output" "$$INSTDIR: $INSTDIR"
     !insertmacro ToLog $LOGFILE "Output" "$$PLUGINSDIR: $PLUGINSDIR"
 
@@ -67,7 +63,6 @@ Function .onInit
     StrCmp $R0 0 0 +2
     Call RobloxRunningError
     SectionSetSize ${ReshadeSection} 36860
-    newadvsplash::stop /WAIT
 FunctionEnd
 
 Function RobloxInProgramFiles

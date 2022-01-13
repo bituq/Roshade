@@ -12,6 +12,20 @@
             !insertmacro AddPreset ${SourcePath} ${OutPath} "RoShade Medium.ini" 0
         SectionEnd
     SectionGroupEnd
+    SectionGroup /e "Zeal's Reshade Presets (old)"
+        Section "Ultra" OldUltra
+            !insertmacro AddPreset ${SourcePath} ${OutPath} "Zeal's ReShade-Preset Ultra.ini" 6
+        SectionEnd
+        Section "High" OldHigh
+            !insertmacro AddPreset ${SourcePath} ${OutPath} "Zeal's ReShade-Preset High.ini" 7
+        SectionEnd
+        Section "Medium" OldMedium
+            !insertmacro AddPreset ${SourcePath} ${OutPath} "Zeal's ReShade-Preset Medium.ini" 8
+        SectionEnd
+        Section "Low" OldLow
+            !insertmacro AddPreset ${SourcePath} ${OutPath} "Zeal's ReShade-Preset Low.ini" 9
+        SectionEnd
+    SectionGroupEnd
     SectionGroup /e "Reflection Presets"
         Section "Glossy" Glossy
             !insertmacro AddPreset ${SourcePath} ${OutPath} "Glossy.ini" 3
