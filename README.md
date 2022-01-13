@@ -22,6 +22,7 @@ Some dependencies may be installed to the NSIS directory, or otherwise to the re
 - [TitlebarProgress](https://nsis.sourceforge.io/TitlebarProgress_plug-in)
 - [TaskbarProgress](https://nsis.sourceforge.io/TaskbarProgress_plug-in)
 - [nsJSON](https://nsis.sourceforge.io/NsJSON_plug-in)
+- [AccessControl](https://nsis.sourceforge.io/AccessControl_plug-in)
 ##### Setup->Util folder:
 - [MoveFileFolder](https://nsis.sourceforge.io/MoveFileFolder)
 - [GetSectionNames](https://nsis.sourceforge.io/Get_all_section_names_of_INI_file)
