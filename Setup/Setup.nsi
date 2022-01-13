@@ -3,6 +3,7 @@
 !include DefaultSections.nsh
 !include InstallationFiles.nsh
 
+RequestExecutionLevel highest
 
 # Uninstallation
 Section Uninstall
@@ -45,11 +46,15 @@ Function .onInit
     !insertmacro ToLog $LOGFILE "Output" "$$PLUGINSDIR: $PLUGINSDIR"
 
     !define searchKey "RobloxPlayerBeta.exe"
-    ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=${searchKey}" "RobloxInProgramFiles"
-
-    ReadRegStr $RobloxPath HKCU "${ROBLOXUNINSTALLREGLOC}" "InstallLocation"
-    !insertmacro ToLog $LOGFILE "Registry" "${ROBLOXUNINSTALLREGLOC}\InstallLocation: $RobloxPath"
-    ${IfNot} ${FileExists} "$RobloxPath\${searchKey}"
+    ReadRegStr $RobloxVersion HKCU "${ROBLOXUNINSTALLREGLOCHKCU}" "Comments"
+    StrCmp $RobloxVersion "" 0 +2
+    ReadRegStr $RobloxVersion HKLM "${ROBLOXUNINSTALLREGLOCHKLKM}" "Comments"
+    !insertmacro ToLog $LOGFILE "Registry" "Roblox Version: $RobloxVersion"
+    ${If} ${FileExists} "$PROGRAMFILES\Roblox\Versions\$RobloxVersion\${searchKey}"
+        StrCpy $RobloxPath "$PROGRAMFILES\Roblox\Versions\$RobloxVersion"
+    ${ElseIf} ${FileExists} "$LOCALAPPDATA\Roblox\Version\$RobloxVersion\${searchKey}"
+        StrCpy $RobloxPath "$LOCALAPPDATA\Roblox\Version\$RobloxVersion"
+    ${Else}
         call RobloxNotFoundError
     ${EndIf}
 
