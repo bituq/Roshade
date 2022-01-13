@@ -37,23 +37,6 @@ Function RobloxNotFoundError
     pop $LauncherTransferID
 FunctionEnd
 
-Function RobloxInProgramFilesError
-    !insertmacro ToLog $LOGFILE "Error" "Roblox has been located in Program Files (x86)."
-    MessageBox MB_YESNO|MB_ICONQUESTION "Roshade cannot be installed when Roblox is located in Program Files (x86). Would you like to reinstall Roblox automatically?" IDYES yes
-        Abort
-    yes:
-    NScurl::http GET "https://www.roblox.com/download/client" "$PLUGINSDIR\RobloxPlayerLauncher.exe" /POPUP /END
-    pop $R0
-    !insertmacro ToLog $LOGFILE "NScurl::http" "https://www.roblox.com/download/client $R0."
-    StrCmp $R0 "OK" +3
-    MessageBox MB_OK "Something went wrong while downloading Roblox: $R0."
-    Abort
-    ExecWait '"$PLUGINSDIR\RobloxPlayerLauncher.exe" -uninstall'
-    RMDir /r "$PROGRAMFILES\Roblox"
-    ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
-    !insertmacro ToLog $LOGFILE "Output" "Roblox has been reinstalled."
-FunctionEnd
-
 Function RobloxRunningError
     !insertmacro ToLog $LOGFILE "Error" "Active Roblox process found."
     MessageBox MB_YESNOCANCEL|MB_ICONEXCLAMATION "It is recommended that you close Roblox when Reshade is already installed. Select 'yes' to close Roblox immediately." IDYES yes IDNO no

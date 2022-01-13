@@ -3,12 +3,10 @@ InstallDir "$LOCALAPPDATA\Roshade"
 
 
 # Attributes
-!define VERSION "1.4.0"
+!define VERSION "1.4.1"
 !define MANUFACTURER "Zeal"
 !define NAME "Roshade"
 !define ROBLOXREGLOC "SOFTWARE\ROBLOX Corporation\Environments\roblox-player"
-!define ROBLOXUNINSTALLREGLOCHKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\roblox-player"
-!define ROBLOXUNINSTALLREGLOCHKLKM "SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\roblox-player-admin"
 !define SELFREGLOC "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
 !define UninstallerExe "Uninstall Roshade.exe"
 !define HELPLINK "https://discord.gg/sjSDVrCjFG"
@@ -34,7 +32,6 @@ Var Techniques
 Var Repositories
 Var ShaderDir
 Var RobloxPath
-Var RobloxVersion
 Var PresetPriority # Determine which preset should be loaded. Lower = higher priority.
 
 VIProductVersion "${VERSION}.0"

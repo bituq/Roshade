@@ -3,7 +3,7 @@
 !include DefaultSections.nsh
 !include InstallationFiles.nsh
 
-RequestExecutionLevel highest
+RequestExecutionLevel admin
 
 # Uninstallation
 Section Uninstall
@@ -45,18 +45,11 @@ Function .onInit
     !insertmacro ToLog $LOGFILE "Output" "$$INSTDIR: $INSTDIR"
     !insertmacro ToLog $LOGFILE "Output" "$$PLUGINSDIR: $PLUGINSDIR"
 
-    !define searchKey "RobloxPlayerBeta.exe"
-    ReadRegStr $RobloxVersion HKCU "${ROBLOXUNINSTALLREGLOCHKCU}" "Comments"
-    StrCmp $RobloxVersion "" 0 +2
-    ReadRegStr $RobloxVersion HKLM "${ROBLOXUNINSTALLREGLOCHKLKM}" "Comments"
-    !insertmacro ToLog $LOGFILE "Registry" "Roblox Version: $RobloxVersion"
-    ${If} ${FileExists} "$PROGRAMFILES\Roblox\Versions\$RobloxVersion\${searchKey}"
-        StrCpy $RobloxPath "$PROGRAMFILES\Roblox\Versions\$RobloxVersion"
-    ${ElseIf} ${FileExists} "$LOCALAPPDATA\Roblox\Version\$RobloxVersion\${searchKey}"
-        StrCpy $RobloxPath "$LOCALAPPDATA\Roblox\Version\$RobloxVersion"
-    ${Else}
-        call RobloxNotFoundError
-    ${EndIf}
+    ${Locate} "$LOCALAPPDATA\Roblox\Versions" "/L=F /M=RobloxPlayerBeta.exe" "GetRobloxPath"
+    ${Locate} "$PROGRAMFILES\Roblox\Versions" "/L=F /M=RobloxPlayerBeta.exe" "GetRobloxPath"
+
+    StrCmp $RobloxPath "" 0 +2
+    call RobloxNotFoundError
 
     ReadRegStr $R0 HKCU ${SELFREGLOC} "Version"
     ${GetSectionNames} ${SHADERSINI} DefineRepositories
@@ -70,10 +63,9 @@ Function .onInit
     SectionSetSize ${ReshadeSection} 36860
 FunctionEnd
 
-Function RobloxInProgramFiles
+Function GetRobloxPath
     StrCpy $0 StopLocate
-    push $R9
-    call RobloxInProgramFilesError
+    StrCpy $RobloxPath $R8
     push $0
 FunctionEnd
 

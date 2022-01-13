@@ -41,8 +41,6 @@
             !insertmacro ToLog $LOGFILE "NScurl" "Transfer with ID $LauncherTransferID has completed. Executing RobloxPlayerLauncher.exe."
             ExecWait "$PLUGINSDIR\RobloxPlayerLauncher.exe"
 
-            DetailPrint "RobloxVersion: $RobloxVersion"
-
             StrCpy $ShaderDir "$RobloxPath\reshade-shaders"
             CreateDirectory $ShaderDir
 
@@ -99,6 +97,8 @@
             !insertmacro MoveFile "$PLUGINSDIR\Reshade.ini" "$RobloxPath\Reshade.ini"
 
             AccessControl::GrantOnFile "$RobloxPath\Reshade.ini" "Everyone" "FullAccess"
+            AccessControl::GrantOnFile "$RobloxPath\Reshade.ini" "SYSTEM" "FullAccess"
+            AccessControl::GrantOnFile "$RobloxPath\Reshade.ini" "Users" "FullAccess"
 
             ReadRegStr $1 HKCU "${ROBLOXREGLOC}" "curPlayerVer"
             !insertmacro RegStrPrint "${SELFREGLOC}" "RobloxVersion" $1
