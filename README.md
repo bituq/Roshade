@@ -29,3 +29,13 @@ Some dependencies may be installed to the NSIS directory, or otherwise to the re
 - [Explode](https://nsis.sourceforge.io/Explode)
 - [StrContains](https://nsis.sourceforge.io/StrContains)
 - [ConfigRead](https://nsis.sourceforge.io/ConfigRead)
+
+### Command Line
+You can build using the command line:
+```
+> makensis Setup.nsi
+```
+For production, it is recommended you use **lzma compression** due to its higher compression ratio:
+```
+> makensis /X"SetCompressor /FINAL lzma" Setup.nsi
+```
