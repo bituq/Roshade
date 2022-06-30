@@ -76,11 +76,6 @@ jobs:
 
       - uses: carlosperate/download-file-action@v1.1.1
         with:
-          file-url: 'https://raw.githubusercontent.com/moai/moai-beta/master/distribute/windows-installer/nsis-includes/MoveFileFolder.nsh'
-          location: 'Setup/Util'
-
-      - uses: carlosperate/download-file-action@v1.1.1
-        with:
           file-url: 'https://raw.githubusercontent.com/vvaldez/yumi/master/StrContains.nsh'
           location: 'Setup/Util'
 
