@@ -9,11 +9,12 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+
+    - env:
+        image-path: 'https://nsis.sourceforge.io/mediawiki/images/'
     
     steps:
       - uses: actions/checkout@v2
-      - env:
-        image-path: 'https://nsis.sourceforge.io/mediawiki/images/'
 
       - uses: carlosperate/download-file-action@v1.1.1
         id: logex
