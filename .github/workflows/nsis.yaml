@@ -34,4 +34,25 @@ jobs:
 
       - run: 7z e -o"nsis_plugins" "${{ steps.nscurl.outputs.file-path }}" x86-unicode/*.dll -y
 
+      - uses: carlosperate/download-file-action@v1.1.1
+        id: nsprocess
+        with:
+          file-url: 'https://nsis.sourceforge.io/mediawiki/images/1/18/NsProcess.zip'
+
+      - run: 7z e -o"nsis_plugins" "${{ steps.nsprocess.outputs.file-path }}" Plugin/*.dll -y
+
+      - uses: carlosperate/download-file-action@v1.1.1
+        id: titlebar
+        with:
+          file-url: 'https://nsis.sourceforge.io/mediawiki/images/f/fc/TitlebarProgress.zip'
+
+      - run: 7z e -o"nsis_plugins" "${{ steps.titlebar.outputs.file-path }}" *.dll -y
+
+      - uses: carlosperate/download-file-action@v1.1.1
+        id: taskbar
+        with:
+          file-url: 'https://nsis.sourceforge.io/mediawiki/images/6/6f/Win7TaskbarProgress_20091109.zip'
+
+      - run: 7z e -o"nsis_plugins" "${{ steps.taskbar.outputs.file-path }}" *.dll -y
+
       - run: dir nsis_plugins
