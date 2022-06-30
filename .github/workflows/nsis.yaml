@@ -26,3 +26,5 @@ jobs:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/1/1c/Nsisunz.zip'
 
       - run: 7z x -o"nsis_plugins" "${{ steps.nsisunz.outputs.file-path }}" *.dll -r
+
+      - run: dir nsis_plugins
