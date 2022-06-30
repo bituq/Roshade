@@ -18,7 +18,7 @@ jobs:
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip'
 
-      - run: 7z e -o"nsis_plugins" "${{ steps.logex.outputs.file-path }}" Plugins/* -y
+      - run: 7z e -o"nsis_plugins" "${{ steps.logex.outputs.file-path }}" Plugins/*.dll -y
 
       - uses: carlosperate/download-file-action@v1.1.1
         id: nsisunz
@@ -26,5 +26,12 @@ jobs:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/1/1c/Nsisunz.zip'
 
       - run: 7z e -o"nsis_plugins" "${{ steps.nsisunz.outputs.file-path }}" *.dll -r -y
+
+      - uses: carlosperate/download-file-action@v1.1.1
+        id: nscurl
+        with:
+          file-url: 'https://github.com/negrutiu/nsis-nscurl/releases/download/v1.2022.6.7/NScurl-1.2022.6.7.7z'
+
+      - run: 7z e -o"nsis_plugins" "${{ steps.nscurl.outputs.file-path }}" x86-unicode/*.dll -y
 
       - run: dir nsis_plugins
