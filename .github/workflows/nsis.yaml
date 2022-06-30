@@ -16,7 +16,7 @@ jobs:
       - uses: carlosperate/download-file-action@v1.1.1
         id: logex
         with:
-          file-url: 'https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip'
+          file-url: 'https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip' Plugins/*
 
       - run: 7z x -o"nsis_plugins" "${{ steps.logex.outputs.file-path }}"
 
@@ -25,4 +25,4 @@ jobs:
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/1/1c/Nsisunz.zip'
 
-      - run: 7z x -o"nsis_plugins" "${{ steps.nsisunz.outputs.file-path }}" *.dll -run
+      - run: 7z x -o"nsis_plugins" "${{ steps.nsisunz.outputs.file-path }}" *.dll -r
