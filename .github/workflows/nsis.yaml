@@ -79,5 +79,11 @@ jobs:
           file-url: 'https://raw.githubusercontent.com/vvaldez/yumi/master/StrContains.nsh'
           location: 'Setup/Util'
 
+      - name: Compile installer
+        uses: joncloud/makensis-action@v3.7
+        with:
+          script-file: Setup/Setup.nsi
+          arguments: /X"SetCompressor /FINAL lzma"
+
       - run: dir Setup/Util
       - run: dir nsis_plugins
