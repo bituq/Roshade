@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
-    env:
-      image_path: 'https://nsis.sourceforge.io/mediawiki/images/'
     
     steps:
       - uses: actions/checkout@v2
@@ -19,6 +16,6 @@ jobs:
       - uses: carlosperate/download-file-action@v1.1.1
         id: logex
         with:
-          file-url: '$image_pathd/d1/LogEx.zip'
+          file-url: 'https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip'
 
       - run: 7z x -o"nsis_plugins" "${{ steps.logex.outputs.file-path }}"
