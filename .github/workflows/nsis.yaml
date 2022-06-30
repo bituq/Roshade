@@ -69,4 +69,15 @@ jobs:
 
       - run: 7z e -o"nsis_plugins" "${{ steps.accesscontrol.outputs.file-path }}" Plugins/i386-unicode/*.dll -y
 
+      - uses: carlosperate/download-file-action@v1.1.1
+        with:
+          file-url: 'https://raw.githubusercontent.com/moai/moai-beta/master/distribute/windows-installer/nsis-includes/MoveFileFolder.nsh'
+          location: 'Setup/Util'
+
+      - uses: carlosperate/download-file-action@v1.1.1
+        with:
+          file-url: 'https://raw.githubusercontent.com/moai/moai-beta/master/distribute/windows-installer/nsis-includes/MoveFileFolder.nsh'
+          location: 'Setup/Util'
+
+      - run: dir Setup/Util
       - run: dir nsis_plugins
