@@ -55,4 +55,18 @@ jobs:
 
       - run: 7z e -o"nsis_plugins" "${{ steps.taskbar.outputs.file-path }}" *.dll -y
 
+      - uses: carlosperate/download-file-action@v1.1.1
+        id: nsjson
+        with:
+          file-url: 'https://nsis.sourceforge.io/mediawiki/images/f/f0/NsJSON.zip'
+
+      - run: 7z e -o"nsis_plugins" "${{ steps.nsjson.outputs.file-path }}" Plugins/x86-unicode/*.dll -y
+
+      - uses: carlosperate/download-file-action@v1.1.1
+        id: accesscontrol
+        with:
+          file-url: 'https://nsis.sourceforge.io/mediawiki/images/4/4a/AccessControl.zip'
+
+      - run: 7z e -o"nsis_plugins" "${{ steps.accesscontrol.outputs.file-path }}" Plugins/i386-unicode/*.dll -y
+
       - run: dir nsis_plugins
