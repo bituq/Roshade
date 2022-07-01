@@ -1,11 +1,10 @@
 # Dependencies
+!include "Util\GetSectionNames.nsh"
+!include "Util\StrContains.nsh"
 !include MUI2.nsh
 !include LogicLib.nsh
 !include FileFunc.nsh
 !include ErrorHandling.nsh
-!include "Util\GetSectionNames.nsh"
-!include "Util\StrContains.nsh"
-!include "Util\DumpLog.nsh"
 !insertmacro Locate
 
 !macro RequiredFiles SourcePath OutPath
