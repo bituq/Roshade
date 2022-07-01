@@ -36,7 +36,7 @@ jobs:
         with:
           file-url: 'https://github.com/negrutiu/nsis-nscurl/releases/download/v1.2022.6.7/NScurl-1.2022.6.7.7z'
 
-      - run: 7z e -o"nsis_plugins" "${{ steps.nscurl.outputs.file-path }}" x86-unicode/*.dll -y
+      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nscurl.outputs.file-path }}" x86-unicode/*.dll -y
 
       - uses: carlosperate/download-file-action@v1.1.1
         id: nsprocess
@@ -50,7 +50,7 @@ jobs:
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/f/fc/TitlebarProgress.zip'
 
-      - run: 7z e -o"nsis_plugins" "${{ steps.titlebar.outputs.file-path }}" *.dll -y
+      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.titlebar.outputs.file-path }}" *.dll -y
 
       - uses: carlosperate/download-file-action@v1.1.1
         id: taskbar
@@ -64,7 +64,7 @@ jobs:
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/f/f0/NsJSON.zip'
 
-      - run: 7z e -o"nsis_plugins" "${{ steps.nsjson.outputs.file-path }}" Plugins/x86-unicode/*.dll -y
+      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nsjson.outputs.file-path }}" Plugins/x86-unicode/*.dll -y
 
       - uses: carlosperate/download-file-action@v1.1.1
         id: accesscontrol
