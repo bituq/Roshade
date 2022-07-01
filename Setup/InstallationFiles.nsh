@@ -1,5 +1,4 @@
 # Dependencies
-!include "Util\DumpLog.nsh"
 !include "Util\GetSectionNames.nsh"
 !include "Util\StrContains.nsh"
 !include MUI2.nsh
