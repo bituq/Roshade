@@ -13,19 +13,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download LogEx
+        uses: carlosperate/download-file-action@v1.1.1
         id: logex
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip'
+      
+      - name: "Extract"
+        run: 7z e -o"nsis_plugins" "${{ steps.logex.outputs.file-path }}" Plugins/*.dll -y
 
-      - run: 7z e -o"nsis_plugins" "${{ steps.logex.outputs.file-path }}" Plugins/*.dll -y
-
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download NsisUnz
+        uses: carlosperate/download-file-action@v1.1.1
         id: nsisunz
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/1/1c/Nsisunz.zip'
 
-      - run: 7z e -o"nsis_plugins" "${{ steps.nsisunz.outputs.file-path }}" *.dll -r -y
+      - name: "Extract"
+        run: 7z e -o"nsis_plugins" "${{ steps.nsisunz.outputs.file-path }}" *.dll -r -y
 
       - uses: carlosperate/download-file-action@v1.1.1
         id: nscurl
@@ -86,5 +90,5 @@ jobs:
         uses: joncloud/makensis-action@v3.7
         with:
           script-file: Setup/Setup.nsi
-          arguments: /X"SetCompressor /FINAL lzma"
+          arguments: /X"SetCompressor /FINAL lzma /V3"
           additional-plugin-paths: nsis_plugins
