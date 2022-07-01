@@ -19,7 +19,7 @@ jobs:
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip'
       
-      - name: "Extract"
+      - name: Extract
         run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.logex.outputs.file-path }}" Plugins/*.dll -y
 
       - name: Download NsisUnz
@@ -28,63 +28,74 @@ jobs:
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/1/1c/Nsisunz.zip'
 
-      - name: "Extract"
+      - name: Extract
         run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nsisunz.outputs.file-path }}" *.dll -r -y
 
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download NsCurl
+        uses: carlosperate/download-file-action@v1.1.1
         id: nscurl
         with:
           file-url: 'https://github.com/negrutiu/nsis-nscurl/releases/download/v1.2022.6.7/NScurl-1.2022.6.7.7z'
 
-      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nscurl.outputs.file-path }}" x86-unicode/*.dll -y
+      - name: Extract
+        run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nscurl.outputs.file-path }}" x86-unicode/*.dll -y
 
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download NsProcess
+        uses: carlosperate/download-file-action@v1.1.1
         id: nsprocess
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/1/18/NsProcess.zip'
 
-      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nsprocess.outputs.file-path }}" Plugin/*.dll -y
+      - name: Extract
+        run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nsprocess.outputs.file-path }}" Plugin/*.dll -y
 
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download TitlebarProgress
+        uses: carlosperate/download-file-action@v1.1.1
         id: titlebar
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/f/fc/TitlebarProgress.zip'
 
-      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.titlebar.outputs.file-path }}" *.dll -y
+      - name: Extract
+        run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.titlebar.outputs.file-path }}" *.dll -y
 
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download TaskbarProgress
+        uses: carlosperate/download-file-action@v1.1.1
         id: taskbar
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/6/6f/Win7TaskbarProgress_20091109.zip'
 
-      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.taskbar.outputs.file-path }}" *.dll -y
+      - name: Extract
+        run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.taskbar.outputs.file-path }}" *.dll -y
 
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download NsJson
+        uses: carlosperate/download-file-action@v1.1.1
         id: nsjson
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/f/f0/NsJSON.zip'
 
-      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nsjson.outputs.file-path }}" Plugins/x86-unicode/*.dll -y
+      - name: Extract
+        run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nsjson.outputs.file-path }}" Plugins/x86-unicode/*.dll -y
 
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download AccessControl
+        uses: carlosperate/download-file-action@v1.1.1
         id: accesscontrol
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/4/4a/AccessControl.zip'
 
-      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.accesscontrol.outputs.file-path }}" Plugins/i386-unicode/*.dll -y
+      - name: Extract
+        run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.accesscontrol.outputs.file-path }}" Plugins/i386-unicode/*.dll -y
 
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download MoveFileFolder
+        uses: carlosperate/download-file-action@v1.1.1
         with:
           file-url: 'https://raw.githubusercontent.com/moai/moai-beta/master/distribute/windows-installer/nsis-includes/MoveFileFolder.nsh'
           location: 'Setup/Util'
 
-      - uses: carlosperate/download-file-action@v1.1.1
+      - name: Download StrContains
+        uses: carlosperate/download-file-action@v1.1.1
         with:
           file-url: 'https://raw.githubusercontent.com/vvaldez/yumi/master/StrContains.nsh'
           location: 'Setup/Util'
-
-      - run: dir Setup/Util
-      - run: dir nsis_plugins
 
       - name: Compile installer
         uses: joncloud/makensis-action@v3.7
@@ -92,3 +103,9 @@ jobs:
           script-file: Setup/Setup.nsi
           arguments: /X"SetCompressor /FINAL lzma"
           additional-plugin-paths: nsis_plugins
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Setup
+          path: RoshadeSetup.exe
