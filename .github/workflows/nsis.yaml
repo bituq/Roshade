@@ -83,6 +83,11 @@ jobs:
           file-url: 'https://raw.githubusercontent.com/vvaldez/yumi/master/StrContains.nsh'
           location: 'Setup/Util'
 
+      - uses: carlosperate/download-file-action@v1.1.1
+        with:
+          file-url: 'https://raw.githubusercontent.com/rasa/nsislib/master/DumpLog.nsh'
+          location: 'Setup/Util'
+
       - run: dir Setup/Util
       - run: dir nsis_plugins
 
