@@ -20,7 +20,7 @@ jobs:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/d/d1/LogEx.zip'
       
       - name: "Extract"
-        run: 7z e -o"nsis_plugins" "${{ steps.logex.outputs.file-path }}" Plugins/*.dll -y
+        run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.logex.outputs.file-path }}" Plugins/*.dll -y
 
       - name: Download NsisUnz
         uses: carlosperate/download-file-action@v1.1.1
@@ -29,7 +29,7 @@ jobs:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/1/1c/Nsisunz.zip'
 
       - name: "Extract"
-        run: 7z e -o"nsis_plugins" "${{ steps.nsisunz.outputs.file-path }}" *.dll -r -y
+        run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nsisunz.outputs.file-path }}" *.dll -r -y
 
       - uses: carlosperate/download-file-action@v1.1.1
         id: nscurl
@@ -43,7 +43,7 @@ jobs:
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/1/18/NsProcess.zip'
 
-      - run: 7z e -o"nsis_plugins" "${{ steps.nsprocess.outputs.file-path }}" Plugin/*.dll -y
+      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.nsprocess.outputs.file-path }}" Plugin/*.dll -y
 
       - uses: carlosperate/download-file-action@v1.1.1
         id: titlebar
@@ -57,7 +57,7 @@ jobs:
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/6/6f/Win7TaskbarProgress_20091109.zip'
 
-      - run: 7z e -o"nsis_plugins" "${{ steps.taskbar.outputs.file-path }}" *.dll -y
+      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.taskbar.outputs.file-path }}" *.dll -y
 
       - uses: carlosperate/download-file-action@v1.1.1
         id: nsjson
@@ -71,7 +71,7 @@ jobs:
         with:
           file-url: 'https://nsis.sourceforge.io/mediawiki/images/4/4a/AccessControl.zip'
 
-      - run: 7z e -o"nsis_plugins" "${{ steps.accesscontrol.outputs.file-path }}" Plugins/i386-unicode/*.dll -y
+      - run: 7z e -o"nsis_plugins/x86-unicode" "${{ steps.accesscontrol.outputs.file-path }}" Plugins/i386-unicode/*.dll -y
 
       - uses: carlosperate/download-file-action@v1.1.1
         with:
@@ -90,5 +90,5 @@ jobs:
         uses: joncloud/makensis-action@v3.7
         with:
           script-file: Setup/Setup.nsi
-          arguments: /X"SetCompressor /FINAL lzma" /V3
+          arguments: /X"SetCompressor /FINAL lzma /V3"
           additional-plugin-paths: nsis_plugins
