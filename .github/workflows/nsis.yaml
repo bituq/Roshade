@@ -87,4 +87,4 @@ jobs:
         with:
           script-file: Setup/Setup.nsi
           arguments: /X"SetCompressor /FINAL lzma"
-          additional-plugin-paths: Plugins
+          additional-plugin-paths: nsis_plugins
