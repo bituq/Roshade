@@ -2,7 +2,7 @@ name: NSIS Workflow
 
 on:
   push:
-    branches: [ main, workflows ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
