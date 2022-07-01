@@ -1,4 +1,4 @@
-# Roshade [![Roshade](https://badgen.net/badge/visit/Roshade.com/orange)](https://Roshade.com/) [![NSIS](https://badgen.net/badge/NSIS/3.06.1/cyan)](https://nsis.sourceforge.io/Download)
+# Roshade [![Roshade](https://badgen.net/badge/visit/Roshade.com/orange)](https://Roshade.com/) [![NSIS](https://badgen.net/badge/NSIS/3.08/cyan)](https://nsis.sourceforge.io/Download)
 
 An installation package made for correctly installing Reshade presets and shaders to the Roblox directory.
 
