@@ -1,4 +1,4 @@
-# Roshade [![Build](https://github.com/bituq/Roshade/actions/workflows/nsis.yaml/badge.svg?branch=main)](https://github.com/bituq/Roshade/actions/workflows/nsis.yaml) [![Roshade](https://badgen.net/badge/visit/Roshade.com/orange)](https://Roshade.com/) [![NSIS](https://badgen.net/badge/NSIS/3.08/cyan)](https://nsis.sourceforge.io/Download)
+# Roshade [![Build](https://github.com/bituq/Roshade/actions/workflows/nsis.yaml/badge.svg?branch=main)](https://github.com/bituq/Roshade/actions/workflows/nsis.yaml) [![Roshade](https://badgen.net/badge/visit/Roshade.com/orange)](https://Roshade.com/) ![Downloads](https://img.shields.io/github/downloads/bituq/Roshade/total) [![NSIS](https://badgen.net/badge/NSIS/3.08/cyan)](https://nsis.sourceforge.io/Download)
 
 Roshade is an installation package that makes it easy to correctly install Reshade presets and shaders to the Roblox directory. With Roshade, you can quickly and easily customize your Roblox experience with advanced visual effects.
 
